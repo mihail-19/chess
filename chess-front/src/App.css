@@ -1,0 +1,26 @@
+.container{
+  margin: 0 auto;
+}
+.chess{
+  margin: o auto;
+  background-color: gray;
+}
+.desk{
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column-reverse;
+}
+.desk__row{
+  display:flex;
+}
+.desk__figure{
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+.desk__figure img{
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: pointer;
+}
