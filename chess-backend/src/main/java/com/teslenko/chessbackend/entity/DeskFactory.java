@@ -1,0 +1,52 @@
+package com.teslenko.chessbackend.entity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Creates desk with set of figures
+ * @author Mykhailo Teslenko
+ *
+ */
+public class DeskFactory {
+	
+	public Desk getDesk() {
+		List<Figure> figures = getStandartFigures();
+		return new Desk(figures);
+	}
+	
+	public Desk getDesk(String param) {
+		//TODO optional creation params
+		return getDesk();
+	}
+	
+	private List<Figure> getStandartFigures(){
+		List<Figure> figures = new ArrayList<>();
+		for(int i = 0; i<8; i++) {
+			figures.add(new PawnFigure(new Field(2, Column.values()[i]), Color.white, FigureType.pawn));
+			figures.add(new PawnFigure(new Field(7, Column.values()[i]), Color.black, FigureType.pawn));
+		}
+		
+		figures.add(new Knight(new Field(1, Column.b), Color.white, FigureType.knight));
+		figures.add(new Knight(new Field(1, Column.g), Color.white, FigureType.knight));
+		figures.add(new Knight(new Field(8, Column.b), Color.black, FigureType.knight));
+		figures.add(new Knight(new Field(8, Column.g), Color.black, FigureType.knight));
+		
+		figures.add(new Bishop(new Field(1, Column.c), Color.white, FigureType.bishop));
+		figures.add(new Bishop(new Field(1, Column.f), Color.white, FigureType.bishop));
+		figures.add(new Bishop(new Field(8, Column.c), Color.black, FigureType.bishop));
+		figures.add(new Bishop(new Field(8, Column.f), Color.black, FigureType.bishop));
+		
+		figures.add(new Rook(new Field(1, Column.a), Color.white, FigureType.rook));
+		figures.add(new Rook(new Field(1, Column.h), Color.white, FigureType.rook));
+		figures.add(new Rook(new Field(8, Column.a), Color.black, FigureType.rook));
+		figures.add(new Rook(new Field(8, Column.h), Color.black, FigureType.rook));
+		
+		figures.add(new Queen(new Field(1, Column.d), Color.white, FigureType.queen));
+		figures.add(new Queen(new Field(8, Column.d), Color.black, FigureType.queen));
+		
+		figures.add(new King(new Field(1, Column.e), Color.white, FigureType.king));
+		figures.add(new King(new Field(8, Column.e), Color.black, FigureType.king));
+		return figures;
+	}
+}
