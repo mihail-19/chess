@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useState, useContext } from "react"
 import {AuthContext} from '../context/authContext'
+import { registerUser } from "../service/UserService"
 const Register = ({showRegister, setShowRegister}) => {
     const {isAuth, setIsAuth, 
         accessHeader, setAccessHeader,
@@ -19,13 +20,9 @@ const Register = ({showRegister, setShowRegister}) => {
     }
 
     async function registerFunc(name, password){
-        const url = localStorage.getItem("server-url") + "/users/add"
-        const data = {
-            username: name,
-            password: password
-        }
-        let res = await axios.post(url, data)
-        loginFunc(name, password)        
+        registerUser(name, password)
+            .then(res =>  loginFunc(name, password)) 
+            .catch(err => console.log(err))       
     }
 
     async function loginFunc(name, password){
@@ -36,11 +33,16 @@ const Register = ({showRegister, setShowRegister}) => {
         data.append('password', password)
         let res = await axios.post(url, data)
         console.log(res.data.access_token)
-        setAccessHeader("Bearer " + res.data.access_token)
-        setRefreshHeader("Bearer " + res.data.refresh_token)
+        const access_header = "Bearer " + res.data.access_token
+        const refresh_header = "Bearer " + res.data.refresh_token
+        setAccessHeader(access_header)
+        setRefreshHeader(refresh_header)
         setIsAuth(true)
         setUsername(name)
-
+        localStorage.setItem("username", name)
+        localStorage.setItem("access_header", access_header)
+        localStorage.setItem("refresh_header", refresh_header)
+        localStorage.setItem("isAuth", "true")
     }
 }
 

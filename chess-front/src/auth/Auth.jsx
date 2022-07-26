@@ -1,29 +1,27 @@
 import axios from "axios"
 import { useContext } from "react"
+import './Auth.css'
 import { AuthContext } from "../context/authContext"
 
 
-const Auth  = ({showLogin, setShowLogin, showRegister, setShowRegister}) =>{
-    const AUTH_PATH = "http://178.151.21.70/chess/login";
-    const REGISTER_PATH = "http://178.151.21.70/chess/users/add"
+const Auth  = ({showLogin, setShowLogin, showRegister, setShowRegister,user, setUser}) =>{
     const {isAuth, setIsAuth, 
         accessHeader, setAccessHeader,
         refreshHeader, setRefreshHeader,
         username, setUsername} = useContext(AuthContext)
-    if(isAuth){
+    if(isAuth && user){
         return (
             <div className="auth">
-                <div className="username">{username}</div>
-                <button onClick={() => logout()}>logout</button>
-                <button onClick={() => getUsers()}>get users</button>
+                <div className="auth__username">{user.username}</div>
+                <button className="auth__button auth__logout-button" onClick={() => logout()}>logout</button>
             </div>
             
         )
     } else {
         return (
             <div className="auth">
-                <button onClick={() => login()}>Sign in</button>
-                <button onClick={() => register()}>Register</button>
+                <button className="auth__button auth__login-button" onClick={() => login()}>Sign in</button>
+                <button className="auth__button auth__register-button" onClick={() => register()}>Register</button>
             </div>
         )
     }
@@ -37,12 +35,21 @@ const Auth  = ({showLogin, setShowLogin, showRegister, setShowRegister}) =>{
         console.log(res.data)
     }
     function login(){
-        setShowLogin(true)
+        if(showLogin){
+            setShowLogin(false)
+        } else {
+            setShowLogin(true)
+        }
         setShowRegister(false)
     }
     function register(){
+        if(showRegister){
+            setShowRegister(false)
+        } else {
+            setShowRegister(true)
+        }
         setShowLogin(false)
-        setShowRegister(true)
+        
     }
     function logout(){
         setIsAuth(false);
@@ -50,6 +57,7 @@ const Auth  = ({showLogin, setShowLogin, showRegister, setShowRegister}) =>{
         setRefreshHeader('')
         setUsername('')
         localStorage.clear()
+        setUser(null)
     }
 
 }

@@ -1,7 +1,8 @@
 import axios from "axios"
 import { useState, useContext } from "react"
 import {AuthContext} from '../context/authContext'
-const Login = ({showLogin, setShowLogin}) => {
+import { getUser } from "../service/UserService"
+const Login = ({showLogin, setShowLogin, setUser}) => {
     const {isAuth, setIsAuth, 
         accessHeader, setAccessHeader,
         refreshHeader, setRefreshHeader,
@@ -13,7 +14,7 @@ const Login = ({showLogin, setShowLogin}) => {
             <div className="auth__form">
                 Username <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
                 Password <input type="text" value={password} onChange={e => setPassword(e.target.value)}></input>
-                <button onClick={() => loginFunc(name, password)}></button>
+                <button onClick={() => loginFunc(name, password)}>Login</button>
             </div>
         )
     }
@@ -36,6 +37,7 @@ const Login = ({showLogin, setShowLogin}) => {
         localStorage.setItem("access_header", access_header)
         localStorage.setItem("refresh_header", refresh_header)
         localStorage.setItem("isAuth", "true")
+        getUser().then(res => setUser(res.data))
     }
 }
 
