@@ -26,5 +26,9 @@ public class Invitation {
 	public void setId(long id) {
 		this.id = id;
 	}
+	@Override
+	public String toString() {
+		return "Invitation [id=" + id + ", sender=" + sender.getUsername() + ", recepient=" + recepient.getUsername() + "]";
+	}
 	
 }

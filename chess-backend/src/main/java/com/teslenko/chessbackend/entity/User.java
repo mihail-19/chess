@@ -3,15 +3,19 @@ package com.teslenko.chessbackend.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.teslenko.chessbackend.Roles;
 
 public class User {
 	private long id;
 	private String username;
+	@JsonIgnore
 	private String password;
 	private List<Invitation> invitations;
 	private Game game;
+	@JsonIgnore
 	private List<String> roles = new ArrayList<>();
 	{
 		roles.add(Roles.ROLE_USER.toString());
@@ -88,7 +92,13 @@ public class User {
 	}
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", username=" + username + ", password=" + password + ", roles=" + roles + "]";
+		if(game != null) {
+			return "User [id=" + id + ", username=" + username + ", invitations=" + invitations + ", game=" + game.getId()
+				+ ", roles=" + roles + "]";
+		} else {
+			return "User [id=" + id + ", username=" + username + ", invitations=" + invitations + ", game=" + null
+			+ ", roles=" + roles + "]";
+		}
 	}
 	
 }

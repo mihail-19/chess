@@ -12,14 +12,15 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 	
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry registry) {
-		registry.enableSimpleBroker("/stomp");
+		registry.enableSimpleBroker("/usrs");
+		registry.setApplicationDestinationPrefixes("/app");
 	}
 	
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry
-			.addEndpoint("/stomp")
-			.setAllowedOriginPatterns("*")
+			.addEndpoint("/stomp-endpoint")
+			.setAllowedOrigins("http://178.151.21.70:3000")
 			.withSockJS();
 	}
 	

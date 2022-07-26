@@ -1,11 +1,13 @@
 package com.teslenko.chessbackend.web;
 
 import java.security.Principal;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.teslenko.chessbackend.entity.Game;
+import com.teslenko.chessbackend.entity.Invitation;
 import com.teslenko.chessbackend.service.GameService;
 import com.teslenko.chessbackend.service.InvitationService;
 
@@ -42,6 +45,12 @@ public class UserActionsInvitationsController {
 	public void sendIvitation(Principal principal, @RequestParam String recepient) {
 		LOG.info("create an invitation from {} to {}", principal.getName(), recepient);
 		invitationService.sendInvitation(principal.getName(), recepient);
+	}
+	
+	@GetMapping("/for-user")
+	public List<Invitation> getUserInvitations(Principal principal){
+		LOG.info("getting invitations for user {}", principal.getName());
+		return invitationService.getForUsername(principal.getName());
 	}
 
 }

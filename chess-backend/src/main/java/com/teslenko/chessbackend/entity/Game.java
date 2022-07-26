@@ -1,6 +1,8 @@
 package com.teslenko.chessbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 import com.teslenko.chessbackend.exception.UnautorizedPlayerException;
 
@@ -8,15 +10,16 @@ public class Game {
 	private long id;
 	private Desk desk;
 
-	@JsonIgnore
+	@JsonIgnoreProperties("game")
 	private User creator;
-	@JsonIgnore
-	private User opponent;
+	@JsonIgnoreProperties("game")
+	private User opponent; 
 	private Color creatorColor;
 	private Color moveColor = Color.white;
 	private boolean isStarted;
 	private boolean isFinished;
 	private ColorPolicy colorPolicy;
+	private String moverUsername;
 	
 	public Game(User creator, ColorPolicy colorPolicy) {
 		this.creator = creator;
@@ -34,14 +37,18 @@ public class Game {
 		this.desk = desk;
 		if(colorPolicy == ColorPolicy.WHITE_CREATOR) {
 			creatorColor = Color.white;
+			moverUsername = creator.getUsername();
 		} else if (colorPolicy == ColorPolicy.BLACK_CREATOR){
 			creatorColor = Color.black;
+			moverUsername = opponent.getUsername();
 		} else if(colorPolicy == ColorPolicy.RANDOM) {
 			boolean isWhite = Math.random() > 0.5;
 			if(isWhite) {
 				creatorColor = Color.white;
+				moverUsername = creator.getUsername();
 			} else {
 				creatorColor = Color.black;
+				moverUsername = opponent.getUsername();
 			}
 		}
 		isStarted = true;
@@ -64,24 +71,29 @@ public class Game {
 		if(!creator.equals(user) && !opponent.equals(user)) {
 			throw new UnautorizedPlayerException("User " + user + " is not attached to the game " + this);
 		}
-		boolean isCreator = creator.equals(user);
-		if((isCreator && creatorColor == Color.white) || (!isCreator && creatorColor == Color.black)) {
-			if(moveColor == Color.white) {
-				desk.moveFigure(from, to);
-				moveColor = Color.black;
-			} else {
-				throw new ImpossibleMoveException("trying to move white figure by black player");
-			}
+		if(moverUsername.equals(user.getUsername())) {
+			desk.moveFigure(moveColor, from, to);
+			switchMover();
 		} else {
-			if(moveColor == Color.black) {
-				desk.moveFigure(from, to);
-				moveColor = Color.white;
-			} else {
 				throw new ImpossibleMoveException("trying to move black figure by white player");
-			}
 		}
 	}
-
+	
+	/*
+	 * Switches current mover to other and switches move color to opposite
+	 */
+	private void switchMover() {
+		if(moverUsername.equals(creator.getUsername())) {
+			moverUsername = opponent.getUsername();
+		} else {
+			moverUsername = creator.getUsername();
+		}
+		if(moveColor == Color.white) {
+			moveColor = Color.black;
+		} else {
+			moveColor = Color.white;
+		}
+	}
 	public long getId() {
 		return id;
 	}
@@ -144,11 +156,18 @@ public class Game {
 	public void setColorPolicy(ColorPolicy colorPolicy) {
 		this.colorPolicy = colorPolicy;
 	}
+	
+	public String getMoverUsername() {
+		return moverUsername;
+	}
+	public void setMoverUsername(String moverUsername) {
+		this.moverUsername = moverUsername;
+	}
 	@Override
 	public String toString() {
 		return "Game [id=" + id + ", desk=" + desk + ", creator=" + creator.getUsername() + ", opponent=" + opponent.getUsername()
 				+ ", creatorColor=" + creatorColor + ", moveColor=" + moveColor + ", isStarted=" + isStarted
-				+ ", isFinished=" + isFinished + ", colorPolicy=" + colorPolicy + "]";
+				+ ", isFinished=" + isFinished + ", colorPolicy=" + colorPolicy +  ", mover's name=" + moverUsername + "]";
 	}
 	
 	

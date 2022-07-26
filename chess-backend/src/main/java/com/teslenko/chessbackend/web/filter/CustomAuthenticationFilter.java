@@ -38,6 +38,16 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 			throws AuthenticationException {
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");
+		 // Access-Control-Allow-Origin
+        String origin = request.getHeader("Origin");
+        response.setHeader("Access-Control-Allow-Origin", "http://178.151.21.70:3000");
+        response.setHeader("Vary", "Origin");
+
+        // Access-Control-Max-Age
+        response.setHeader("Access-Control-Max-Age", "3600");
+
+        // Access-Control-Allow-Credentials
+        response.setHeader("Access-Control-Allow-Credentials", "false");
 		LOG.trace("trying to authenticate username={}, password={}", username, password);
 		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
 		return authenticationManager.authenticate(token);
@@ -65,6 +75,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 		Map<String, String> tokens = new HashMap<>();
 		tokens.put("access_token", accessToken);
 		tokens.put("refresh_token", refreshToken);
+		LOG.info("generated tokens {}", tokens);
 		new ObjectMapper().writeValue(response.getOutputStream(), tokens);
 		
 	}

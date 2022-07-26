@@ -46,6 +46,11 @@ public class UserActionsGameController {
 		return gameService.getAll();
 	}
 	
+	@GetMapping("/for-user")
+	public Game getGameForUser(Principal principal) {
+		LOG.info("getting game for user {}", principal.getName());
+		return gameService.getForUser(principal.getName());
+	}
 	
 	@PostMapping("/create")
 	public Game createGame(@RequestParam ColorPolicy colorPolicy, Principal principal) {
@@ -57,7 +62,7 @@ public class UserActionsGameController {
 	
 		
 	
-	@PostMapping("/start")
+	@GetMapping("/start")
 	public Game start(Principal principal) {
 		LOG.info("starting game by {}", principal.getName());
 		User user = userService.get(principal.getName());
@@ -75,6 +80,14 @@ public class UserActionsGameController {
 			throw new ChessException("could not make move: player has no game");
 		}
 		game = gameService.move(game.getId(), user, move);
+		return game;
+	}
+	
+	@GetMapping("/stop")
+	public Game stop(Principal principal) {
+		LOG.info("stop game by {}", principal.getName());
+		User user = userService.get(principal.getName());
+		Game game = gameService.stopUserGame(user);
 		return game;
 	}
 	

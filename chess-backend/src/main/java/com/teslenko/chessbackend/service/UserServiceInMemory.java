@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.teslenko.chessbackend.entity.Game;
 import com.teslenko.chessbackend.entity.User;
 import com.teslenko.chessbackend.exception.BusyNameException;
 
@@ -25,18 +26,25 @@ public class UserServiceInMemory implements UserDetailsService, UserService {
 	private List<User> users = new ArrayList<>();
 	private long maxId = 1;
 	private SimpMessagingTemplate messagingTemplate;
-	private static final String WEB_SOCKET_ENDPOINT = "/socket/";
+	private static final String WEB_SOCKET_ENDPOINT = "/usrs/";
 	private static final String WEB_SOCKET_REFRESH_MESSAGE = "refresh";
 	@Autowired
 	public UserServiceInMemory(PasswordEncoder passwordEncoder, SimpMessagingTemplate messagingTemplate) {
 		this.passwordEncoder = passwordEncoder;
 		this.messagingTemplate = messagingTemplate;
-		
 		//for testing only
 		User user1 = new User();
 		user1.setUsername("user1");
 		user1.setPassword("1234");
 		add(user1);
+		User user2 = new User();
+		user2.setUsername("u1");
+		user2.setPassword("a");
+		add(user2);
+		User user3 = new User();
+		user3.setUsername("u2");
+		user3.setPassword("b");
+		add(user3);
 	}
 
 	@Override
@@ -101,8 +109,10 @@ public class UserServiceInMemory implements UserDetailsService, UserService {
 	 */
 	@Override
 	public void sendRefreshBySocket(User user) {
-		LOG.info("sending user refresh message by web socket for user {}", user);
-		messagingTemplate.convertAndSend(WEB_SOCKET_ENDPOINT + user.getUsername(), WEB_SOCKET_REFRESH_MESSAGE);
+		
+		String url = WEB_SOCKET_ENDPOINT + user.getUsername();
+		LOG.info("sending refresh msg {}", url);
+		messagingTemplate.convertAndSend(WEB_SOCKET_ENDPOINT + user.getUsername(), user);
 	}
 	
 	

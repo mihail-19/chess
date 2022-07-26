@@ -42,6 +42,14 @@ public class GameServiceInMemory implements GameService {
 	}
 
 	@Override
+	public Game getForUser(String username) {
+		LOG.info("getting game for user {}", username);
+		return games.stream()
+				.filter(g -> username.equals(g.getCreator().getUsername()) || username.equals(g.getOpponent().getUsername()))
+				.findFirst().orElse(null);
+	}
+
+	@Override
 	public Game add(Game game) {
 		LOG.info("add game {}", game);
 		game.setId(maxId++);
@@ -69,6 +77,8 @@ public class GameServiceInMemory implements GameService {
 		LOG.info("game with ID={} move {} by {}", id, user, move);
 		Game game = games.stream().filter(g -> g.getId() == id).findFirst().orElseThrow();
 		game.move(user, move);
+		userService.sendRefreshBySocket(game.getCreator());
+		userService.sendRefreshBySocket(game.getOpponent());
 		return game;
 	}
 
@@ -78,6 +88,8 @@ public class GameServiceInMemory implements GameService {
 		Game game = get(id);
 		Desk desk = deskService.create();
 		game.startGame(desk);
+		userService.sendRefreshBySocket(game.getCreator());
+		userService.sendRefreshBySocket(game.getOpponent());
 		return game;
 	}
 	
@@ -119,7 +131,19 @@ public class GameServiceInMemory implements GameService {
 		}
 		Desk desk = deskService.create();
 		game.startGame(desk);
+		userService.sendRefreshBySocket(game.getCreator());
+		userService.sendRefreshBySocket(game.getOpponent());
 		return game;
 	}
 
+	@Override
+	public Game stopUserGame(User user) {
+		Game game = user.getGame();
+		game.finishGame();
+		userService.sendRefreshBySocket(game.getCreator());
+		userService.sendRefreshBySocket(game.getOpponent());
+		return game;
+	}
+	
+	
 }

@@ -28,7 +28,9 @@ public class CustomAtuhorizationFilter extends OncePerRequestFilter{
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if(request.getServletPath().equals("/login") || request.getServletPath().equals("/users/add")) {
+		LOG.info("request authorization {}", request.getServletPath());
+		if(request.getServletPath().equals("/login") || request.getServletPath().equals("/users/add") || request.getServletPath().startsWith("/stomp")) {
+			LOG.info("don't need to authorize request {}", request.getServletPath());
 			filterChain.doFilter(request, response);
 		} else {
 			String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
@@ -44,6 +46,7 @@ public class CustomAtuhorizationFilter extends OncePerRequestFilter{
 					Arrays.stream(roles).forEach(r -> auths.add(new SimpleGrantedAuthority(r)));
 					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, null, auths);
 					SecurityContextHolder.getContext().setAuthentication(authToken);
+					LOG.info("authorization success for {}", username);
 					filterChain.doFilter(request, response);
 				}catch(Exception e) {
 					LOG.error("Error logging in : {} " + e.getMessage());
@@ -52,6 +55,7 @@ public class CustomAtuhorizationFilter extends OncePerRequestFilter{
 				}
 						
 			} else {
+				LOG.error("Error loggin in: no auth header {} for request {}", authHeader, request.getServletPath());
 				filterChain.doFilter(request, response);
 			}
 		}

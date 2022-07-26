@@ -17,35 +17,35 @@ public class BishopTest {
 	public void testFalseMoveUpLeft() {
 		Field field = new Field(1, Column.c);
 		Field moveField = new Field(2, Column.b);
-		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(field, moveField));
+		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(Color.white, field, moveField));
 	}
 	@Test
 	public void testFalseMoveUpRight() {
 		Field field = new Field(1, Column.c);
 		Field moveField = new Field(2, Column.d);
-		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(field, moveField));
+		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(Color.white, field, moveField));
 	}
 	@Test
 	public void testFalseMoveDownLeft() {
 		Field field = new Field(8, Column.c);
 		Field moveField = new Field(7, Column.b);
-		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(field, moveField));
+		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(Color.black, field, moveField));
 	}
 	@Test
 	public void testFalseDownRight() {
 		Field field = new Field(8, Column.c);
 		Field moveField = new Field(7, Column.d);
-		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(field, moveField));
+		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(Color.black, field, moveField));
 	}
 	
 	@Test
 	public void testMove() {
 		Field field = new Field(2, Column.d);
 		Field moveField = new Field(4, Column.d);
-		desk.moveFigure(field, moveField);
+		desk.moveFigure(Color.white, field, moveField);
 		field = new Field(1, Column.c);
 		moveField = new Field(3, Column.e);
-		desk.moveFigure(field, moveField);
+		desk.moveFigure(Color.white, field, moveField);
 		assertTrue(desk.getFields().containsKey(moveField));
 		assertEquals(desk.getFields().get(moveField).getType(), FigureType.bishop);
 		System.out.println(desk.nicePrinted());
@@ -54,14 +54,14 @@ public class BishopTest {
 	public void testEatFigure() {
 		Field field = new Field(2, Column.d);
 		Field moveField = new Field(4, Column.d);
-		desk.moveFigure(field, moveField);
+		desk.moveFigure(Color.white, field, moveField);
 		field = new Field(1, Column.c);
 		moveField = new Field(4, Column.f);
-		desk.moveFigure(field, moveField);
+		desk.moveFigure(Color.white, field, moveField);
 		field = new Field(4, Column.f);
 		moveField = new Field(7, Column.c);
 		Figure takenFigure = desk.getFields().get(moveField);
-		desk.moveFigure(field, moveField);
+		desk.moveFigure(Color.white, field, moveField);
 		assertTrue(desk.getFields().containsKey(moveField));
 		assertEquals(desk.getFields().get(moveField).getType(), FigureType.bishop);
 		assertFalse(desk.getFigures().contains(takenFigure));

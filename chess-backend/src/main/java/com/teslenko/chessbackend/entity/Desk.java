@@ -6,10 +6,15 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 import com.teslenko.chessbackend.exception.NoSuchFigureException;
 
 public class Desk {
+	private static Logger LOG = LoggerFactory.getLogger(Desk.class);
 	private static final int FIELD_STRING_LENGTH = 14;
 	private List<Figure> figures;
 	@JsonIgnore
@@ -26,6 +31,7 @@ public class Desk {
 	}
 	
 	public void takeFigure(Figure figure) {
+		LOG.info("taking figure {}", figure);
 		figure.setIsAlive(false);
 		fields.remove(figure.getField());
 		figures.remove(figure);
@@ -43,9 +49,14 @@ public class Desk {
 	 * @param rowId
 	 * @param columnId
 	 */
-	public void moveFigure(Field from, Field to) {
+	public void moveFigure(Color moveColor, Field from, Field to) {
+		LOG.info("move from {} to {}", from, to);
 		if(fields.containsKey(from)) {
 			Figure deskFigure = fields.get(from);
+			if(deskFigure.getColor() != moveColor) {
+				LOG.error("error while move: figure color is {}, move color is {}", deskFigure.getColor(), moveColor);
+				throw new ImpossibleMoveException("trying to move wrong color figure");
+			}
 			deskFigure.move(this, to);
 		} else {
 			throw new NoSuchFigureException("no figure to move in field [" + from + "]");

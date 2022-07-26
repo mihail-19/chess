@@ -1,11 +1,13 @@
 package com.teslenko.chessbackend.web;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.teslenko.chessbackend.dto.UserDto;
 import com.teslenko.chessbackend.entity.User;
 import com.teslenko.chessbackend.exception.BusyNameException;
 import com.teslenko.chessbackend.service.UserService;
@@ -33,7 +36,13 @@ public class UserController {
 		LOG.info("getting all users");
 		return userService.getAll();
 	}
-	
+	@GetMapping("/current")
+	public User getCurrentUser(Principal principal) {
+		LOG.info("getting current user {}", principal.getName());
+		User user = userService.get(principal.getName());
+		LOG.info("found user {}", user);
+		return user;
+	}
 	@GetMapping("/{id}")
 	public User getById(@PathVariable long id) {
 		User user = null;
@@ -57,8 +66,9 @@ public class UserController {
 	}
 	
 	@PostMapping("/add")
-	public void addUser(@RequestBody User user) {
-		LOG.info("adding a user {}", user);
+	public void addUser(@RequestBody UserDto userDto) {
+		LOG.info("adding a user {}", userDto);
+		User user = userDto.toUser();
 		if(userService.containsUsername(user.getUsername())) {
 			throw new BusyNameException("username " + user.getUsername() + " is already taken");
 		}

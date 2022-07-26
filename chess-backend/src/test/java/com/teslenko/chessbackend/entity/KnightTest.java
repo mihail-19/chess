@@ -17,26 +17,26 @@ public class KnightTest {
 	public void testFalseMoveStraight() {
 		Field field = new Field(1, Column.b);
 		Field moveField = new Field(5, Column.e);
-		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(field, moveField));
+		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(Color.white, field, moveField));
 	}
 	@Test
 	public void testFalseMoveOutDesk() {
 		Field field = new Field(1, Column.b);
 		Field moveField = new Field(-3, Column.f);
-		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(field, moveField));
+		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(Color.white, field, moveField));
 	}
 	@Test
 	public void testFalseMoveTakeSameColor() {
 		Field field = new Field(1, Column.b);
 		Field moveField = new Field(2, Column.d);
-		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(field, moveField));
+		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(Color.white, field, moveField));
 	}
 	
 	@Test
 	public void testMoveStraight() {
 		Field field = new Field(1, Column.b);
 		Field moveField = new Field(3, Column.c);
-		desk.moveFigure(field, moveField);
+		desk.moveFigure(Color.white, field, moveField);
 		assertTrue(desk.getFields().containsKey(moveField));
 		assertEquals(desk.getFields().get(moveField).getType(), FigureType.knight);
 		System.out.println(desk.nicePrinted());
@@ -46,14 +46,14 @@ public class KnightTest {
 	public void testEatByWhite() {
 		Field field1 = new Field(7, Column.d);
 		Field moveField1 = new Field(5, Column.d);
-		desk.moveFigure(field1, moveField1);
+		desk.moveFigure(Color.black, field1, moveField1);
 		field1 = new Field(1, Column.b);
 		moveField1 = new Field(3, Column.c);
-		desk.moveFigure(field1, moveField1);
+		desk.moveFigure(Color.white, field1, moveField1);
 		Field field = new Field(3, Column.c);
 		Field moveField = new Field(5, Column.d);
 		Figure takenFigure = desk.getFields().get(moveField);
-		desk.moveFigure(field, moveField);
+		desk.moveFigure(Color.white, field, moveField);
 		assertTrue(desk.getFields().containsKey(moveField));
 		assertTrue(desk.getTakenFiguresBlack().contains(takenFigure));
 		assertFalse(desk.getFigures().contains(takenFigure));
