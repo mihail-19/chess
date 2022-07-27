@@ -1,6 +1,7 @@
 import axios from "axios"
 import { useEffect } from "react"
 import { useState, useContext } from "react"
+import './Actions.css'
 import { AuthContext } from "../context/authContext"
 
 const Invitation = ({user}) => {
@@ -18,19 +19,19 @@ const Invitation = ({user}) => {
                 setInvs([])
             }
         }, [user])
-        if(isAuth){
+        if(isAuth && user && (!user.game || user.game.isFinished)){
             return (
                 <div className="invitations">
                     <div className="invitations__form">
                         Send invitation: 
                         <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
-                        <button onClick={() => sendInvitation(name)}>Send</button>
+                        <button className="actions__button" onClick={() => sendInvitation(name)}>Send</button>
                     </div>
                     <div className="invitations__list">
                         {invs.map(i =>
                              <div>{i.id}
-                                <button onClick={() => denyInvitation(i)}>deny</button>
-                                <button onClick={() => acceptInvitation(i)}>accept</button>
+                                <button className="actions__button" onClick={() => denyInvitation(i)}>deny</button>
+                                <button className="actions__button" onClick={() => acceptInvitation(i)}>accept</button>
                             </div>)}
                     </div>
                 </div>

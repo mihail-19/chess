@@ -1,20 +1,28 @@
 import axios from "axios"
 import { useState, useContext } from "react"
+import './Actions.css'
 import {AuthContext} from '../context/authContext'
-import { registerUser } from "../service/UserService"
-const Register = ({showRegister, setShowRegister}) => {
+import { registerUser, getUser } from "../service/UserService"
+import { useEffect } from "react"
+const Register = ({showRegister, setShowRegister, user, setUser}) => {
     const {isAuth, setIsAuth, 
         accessHeader, setAccessHeader,
         refreshHeader, setRefreshHeader,
         username, setUsername} = useContext(AuthContext)
     const [name, setName] = useState('')
     const [password, setPassword] = useState('')
-    if(showRegister){
+    if(showRegister && !isAuth){
         return (
-            <div className="auth__form">
-                Username <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
-                Password <input type="text" value={password} onChange={e => setPassword(e.target.value)}></input>
-                <button onClick={() => registerFunc(name, password)}></button>
+            <div className="actions__form">
+                <div className="actions__form-line">
+                 <label>Username</label> <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
+                </div>
+                <div className="actions__form-line">
+                 <label>Password</label> <input type="text" value={password} onChange={e => setPassword(e.target.value)}></input>
+                </div>
+                <div className="actions__form-line">
+                 <button className="actions__button" onClick={() => registerFunc(name, password)}>Register</button>
+                </div>
             </div>
         )
     }
@@ -43,6 +51,8 @@ const Register = ({showRegister, setShowRegister}) => {
         localStorage.setItem("access_header", access_header)
         localStorage.setItem("refresh_header", refresh_header)
         localStorage.setItem("isAuth", "true")
+        getUser()
+            .then(res => setUser(res.data))
     }
 }
 

@@ -20,7 +20,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer{
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry
 			.addEndpoint("/stomp-endpoint")
-			.setAllowedOrigins("http://178.151.21.70:3000")
+			.setAllowedOrigins("http://:3000")
 			.withSockJS();
 	}
 	

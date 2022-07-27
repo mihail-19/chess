@@ -1,5 +1,6 @@
 import axios from "axios"
 import { useState, useContext } from "react"
+import './Actions.css'
 import {AuthContext} from '../context/authContext'
 import { getUser } from "../service/UserService"
 const Login = ({showLogin, setShowLogin, setUser}) => {
@@ -11,10 +12,16 @@ const Login = ({showLogin, setShowLogin, setUser}) => {
     const [password, setPassword] = useState('')
     if(showLogin){
         return (
-            <div className="auth__form">
-                Username <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
-                Password <input type="text" value={password} onChange={e => setPassword(e.target.value)}></input>
-                <button onClick={() => loginFunc(name, password)}>Login</button>
+            <div className="actions__form">
+                <div className="actions__form-line">
+                    <label >Username</label> <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
+                </div>
+                <div className="actions__form-line">
+                    <label>Password</label> <input type="text" value={password} onChange={e => setPassword(e.target.value)}></input>
+                </div>
+                <div className="actions__form-line">
+                    <button className="actions__button" onClick={() => loginFunc(name, password)}>Login</button>
+                </div>
             </div>
         )
     }
@@ -37,7 +44,10 @@ const Login = ({showLogin, setShowLogin, setUser}) => {
         localStorage.setItem("access_header", access_header)
         localStorage.setItem("refresh_header", refresh_header)
         localStorage.setItem("isAuth", "true")
-        getUser().then(res => setUser(res.data))
+        getUser().then(res => {
+            setUser(res.data)
+            setShowLogin(false)
+        })
     }
 }
 

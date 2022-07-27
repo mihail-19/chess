@@ -1,12 +1,13 @@
+import './Actions.css'
 import { gameStart, gameStop } from "../service/GameService"
 import { getUser } from "../service/UserService"
 
 const GameActions = ({user, setUser}) =>{
     if(user && user.game ){
         if(!user.game.isStarted && user.username === user.game.creator.username){
-            return <button onClick={() => start()}>start</button>
+            return <button className="actions__button" onClick={() => start()}>start</button>
         } else if(user.game.isStarted && !user.game.isFinished){
-            return <button onClick={() => stop()}>stop</button>
+            return <button className="actions__button" onClick={() => stop()}>stop</button>
         }
     }
 

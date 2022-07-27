@@ -18,7 +18,7 @@ function App() {
   const [username, setUsername] = useState(localStorage.getItem("username"))
   const [showLogin, setShowLogin] = useState(false)
   const [showRegister, setShowRegister] = useState(false)
-  localStorage.setItem("server-url", "http://178.151.21.70")
+  localStorage.setItem("server-url", "http://")
   const [user, setUser] = useState({})
   let stompClient = null
   useEffect(() => {

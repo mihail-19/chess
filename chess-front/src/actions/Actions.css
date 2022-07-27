@@ -1,0 +1,22 @@
+.actions{
+    padding: 10px 10px 10px 20px;
+    margin-left: 10px;
+}
+.actions__form-line{
+    padding: 5px;
+}
+.actions__form label{
+    width: 70px;
+    display: inline-block;
+    color: rgb(228, 211, 211);
+    margin-right: 10px;
+}
+.actions__button{
+    padding: 5px 10px;
+    color: rgb(17 22 16);
+    font-weight: bold;
+    background-color: #686e62;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+}

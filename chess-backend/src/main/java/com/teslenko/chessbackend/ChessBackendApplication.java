@@ -46,7 +46,7 @@ public class ChessBackendApplication {
 			public void addCorsMappings(CorsRegistry registry) {
 				 registry.addMapping("/**")
 				 .allowCredentials(true)
-				 .allowedOrigins("http://178.151.21.70:3000");
+				 .allowedOrigins("http://:3000");
 			}
 		};
 	}
@@ -81,7 +81,7 @@ public class ChessBackendApplication {
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
 		//configuration.applyPermitDefaultValues();
-		configuration.addAllowedOrigin("http://178.151.21.70:3000");
+		configuration.addAllowedOrigin("http://:3000");
 		configuration.setAllowedHeaders(Collections.singletonList("*"));
 		configuration.setAllowedMethods(Collections.singletonList("*"));
 		configuration.setAllowCredentials(true);
