@@ -1,20 +1,15 @@
 package com.teslenko.chessbackend;
 
-import java.util.Arrays;
 import java.util.Collections;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -27,15 +22,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 
 import com.teslenko.chessbackend.web.filter.CustomAtuhorizationFilter;
-import com.teslenko.chessbackend.web.filter.CustomAuthenticationFilter;
+import com.teslenko.chessbackend.web.filter.JWTManager;
 
 @SpringBootApplication
 @EnableWebSecurity
 @EnableWebSocket
 public class ChessBackendApplication {
-	private static final Logger LOG = LoggerFactory.getLogger(ChessBackendApplication.class);
-	private UserDetailsService userDetailsService;
-
+	
+	@Value("${chess.cors.url}")
+	private String corsURL;
+	@Autowired
+	private JWTManager jwtManager;
+	
 	public static void main(String[] args) {
 		SpringApplication.run(ChessBackendApplication.class, args);
 	}
@@ -46,15 +44,12 @@ public class ChessBackendApplication {
 			public void addCorsMappings(CorsRegistry registry) {
 				 registry.addMapping("/**")
 				 .allowCredentials(true)
-				 .allowedOrigins("http://:3000");
+				 .allowedOrigins(corsURL);
 			}
 		};
 	}
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//		 AuthenticationManager authenticationManager = http.getSharedObject(AuthenticationManager.class);
-//	     authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
-//	     AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
 	     
 	     http
 	     	.cors().configurationSource(corsConfigurationSource()).and()
@@ -66,9 +61,9 @@ public class ChessBackendApplication {
 					.antMatchers("/login", "/users/add", "/stomp-endpoint/**").permitAll()
 					.antMatchers("/games/**", "/users/**").hasAnyAuthority("ROLE_USER")
 					.anyRequest().authenticated()
-					.and().addFilterBefore(new CustomAtuhorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+					.and().addFilterBefore(new CustomAtuhorizationFilter(jwtManager), UsernamePasswordAuthenticationFilter.class);
 				})
-	     	.apply(MyCustomDsl.customDsl());
+	     	.apply(MyCustomDsl.customDsl(jwtManager));
 	     
 		return http.build();
 	}
@@ -80,13 +75,10 @@ public class ChessBackendApplication {
 	@Bean
 	CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		//configuration.applyPermitDefaultValues();
-		configuration.addAllowedOrigin("http://:3000");
+		configuration.addAllowedOrigin(corsURL);
 		configuration.setAllowedHeaders(Collections.singletonList("*"));
 		configuration.setAllowedMethods(Collections.singletonList("*"));
 		configuration.setAllowCredentials(true);
-//		configuration.setAllowedOrigins(Arrays.asList("*"));
-//		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
 		return source;
