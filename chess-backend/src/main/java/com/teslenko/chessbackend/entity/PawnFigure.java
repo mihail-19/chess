@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 
 public class PawnFigure extends Figure {
 	public PawnFigure(Field field, Color color, FigureType type) {
@@ -20,7 +19,8 @@ public class PawnFigure extends Figure {
 	}
 	
 	@Override
-	public List<Field> availableMoves(Map<Field, Figure> fields) {
+	public List<Field> availableMoves(Desk desk) {
+		Map<Field, Figure> fields = desk.getFields();
 		List<Field> moves = new ArrayList<>();
 		if(getColor() == Color.white) {
 			boolean isFreeNextField = addStraightMove(1, 0, fields, moves);

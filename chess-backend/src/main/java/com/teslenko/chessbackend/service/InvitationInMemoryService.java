@@ -102,7 +102,7 @@ public class InvitationInMemoryService implements InvitationService{
 					rec.setGame(null);
 				}
 			}
-			game = gameService.add(sender.getUsername(), rec.getUsername(), ColorPolicy.WHITE_CREATOR);
+			game = gameService.add(sender, rec, ColorPolicy.WHITE_CREATOR);
 			sender.setGame(game);
 			rec.setGame(game);
 			userService.update(sender);

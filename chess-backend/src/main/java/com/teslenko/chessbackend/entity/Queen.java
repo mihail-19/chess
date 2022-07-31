@@ -10,8 +10,9 @@ public class Queen extends Figure{
 		super(field, color, type);
 	}
 	
-	
-	public List<Field> availableMoves(Map<Field, Figure> fields){
+	@Override
+	public List<Field> availableMoves(Desk desk){
+		Map<Field, Figure> fields = desk.getFields();
 		List<Field> moves = new ArrayList<>();
 		int shiftRow = 0;
 		int shiftColumn = 0;

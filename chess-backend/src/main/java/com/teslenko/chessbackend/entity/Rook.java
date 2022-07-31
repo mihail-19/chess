@@ -10,8 +10,27 @@ public class Rook extends Figure{
 		super(field, color, type);
 	}
 	
+	@Override
+	public void move(Desk desk, Field field) {
+		Field old = this.getField();
+		super.move(desk, field);
+		if(desk.getIsCastlingAvailableWhiteLeft() && getColor() == Color.white && old.getColumnId() == Column.a) {
+			desk.setIsCastlingAvailableWhiteLeft(false);
+		}
+		if(desk.getIsCastlingAvailableWhiteRight() && getColor() == Color.white && old.getColumnId() == Column.h) {
+			desk.setIsCastlingAvailableWhiteRight(false);
+		}
+		if(desk.getIsCastlingAvailableWhiteLeft() && getColor() == Color.black && old.getColumnId() == Column.a) {
+			desk.setIsCastlingAvailableBlackLeft(false);
+		}
+		if(desk.getIsCastlingAvailableBlackRight() && getColor() == Color.black && old.getColumnId() == Column.h) {
+			desk.setIsCastlingAvailableBlackRight(false);
+		}
+	}
 	
-	public List<Field> availableMoves(Map<Field, Figure> fields){
+	@Override
+	public List<Field> availableMoves(Desk desk){
+		Map<Field, Figure> fields = desk.getFields();
 		List<Field> moves = new ArrayList<>();
 		
 		int rowShift = 0;

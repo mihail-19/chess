@@ -3,9 +3,7 @@ package com.teslenko.chessbackend.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.teslenko.chessbackend.Roles;
 
 public class User {

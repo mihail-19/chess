@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import com.teslenko.chessbackend.entity.ColorPolicy;
 import com.teslenko.chessbackend.entity.Desk;
-import com.teslenko.chessbackend.entity.Field;
 import com.teslenko.chessbackend.entity.Game;
 import com.teslenko.chessbackend.entity.Move;
 import com.teslenko.chessbackend.entity.User;
@@ -96,11 +95,9 @@ public class GameServiceInMemory implements GameService {
 	
 
 	@Override
-	public Game add(String creatorUsername, String secondUsername, ColorPolicy colorPolicy) {
+	public Game add(User creator, User opponent, ColorPolicy colorPolicy) {
 		//TODO
-		LOG.info("creating a game creator {}, opponent {}, color policy {}", creatorUsername, secondUsername, colorPolicy);
-		User creator = userService.get(creatorUsername);
-		User opponent = userService.get(secondUsername);
+		LOG.info("creating a game creator {}, opponent {}, color policy {}", creator.getUsername(), opponent.getUsername(), colorPolicy);
 		Game game = new Game(creator, colorPolicy);
 		game.addPlayer(opponent);
 		game.setId(maxId++);

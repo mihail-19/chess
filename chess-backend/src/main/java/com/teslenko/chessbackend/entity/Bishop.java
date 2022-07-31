@@ -11,7 +11,8 @@ public class Bishop extends Figure{
 	}
 	
 	@Override
-	public List<Field> availableMoves(Map<Field, Figure> fields){
+	public List<Field> availableMoves(Desk desk){
+		Map<Field, Figure> fields = desk.getFields();
 		List<Field> moves = new ArrayList<>();
 		int shiftRow = 0;
 		int shiftColumn = 0;

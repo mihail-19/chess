@@ -1,8 +1,6 @@
 package com.teslenko.chessbackend.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 import com.teslenko.chessbackend.exception.UnautorizedPlayerException;
 
@@ -16,10 +14,10 @@ public class Game {
 	private User opponent; 
 	private Color creatorColor;
 	private Color moveColor = Color.white;
-	private boolean isStarted;
-	private boolean isFinished;
 	private ColorPolicy colorPolicy;
 	private String moverUsername;
+	private boolean isStarted;
+	private boolean isFinished;
 	
 	public Game(User creator, ColorPolicy colorPolicy) {
 		this.creator = creator;
@@ -66,6 +64,9 @@ public class Game {
 	 * @param to
 	 */
 	public void move(User user, Move move) {
+		if(!isStarted || isFinished) {
+			throw new ImpossibleMoveException("error while move: can't move if game is not running");
+		}
 		Field from = move.getFrom();
 		Field to = move.getTo();
 		if(!creator.equals(user) && !opponent.equals(user)) {
@@ -163,9 +164,12 @@ public class Game {
 	public void setMoverUsername(String moverUsername) {
 		this.moverUsername = moverUsername;
 	}
+	
 	@Override
 	public String toString() {
-		return "Game [id=" + id + ", desk=" + desk + ", creator=" + creator.getUsername() + ", opponent=" + opponent.getUsername()
+		String creatorUsername = creator == null ? " - " : creator.getUsername();
+		String opponentUsername = opponent == null ? " - " : opponent.getUsername();
+		return "Game [id=" + id + ", desk=" + desk + ", creator=" + creatorUsername + ", opponent=" + opponentUsername
 				+ ", creatorColor=" + creatorColor + ", moveColor=" + moveColor + ", isStarted=" + isStarted
 				+ ", isFinished=" + isFinished + ", colorPolicy=" + colorPolicy +  ", mover's name=" + moverUsername + "]";
 	}

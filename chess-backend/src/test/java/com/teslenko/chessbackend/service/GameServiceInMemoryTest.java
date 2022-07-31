@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.teslenko.chessbackend.entity.ColorPolicy;
@@ -16,7 +18,7 @@ import com.teslenko.chessbackend.entity.Move;
 import com.teslenko.chessbackend.entity.User;
 
 public class GameServiceInMemoryTest {
-	GameService gameService = new GameServiceInMemory(new StandartDeskService(), new UserServiceInMemory(new BCryptPasswordEncoder(), null));
+	GameService gameService = new GameServiceInMemory(new StandartDeskService(), new UserServiceInMemory(new BCryptPasswordEncoder(), Mockito.mock(SimpMessagingTemplate.class)));
 	
 	@Test
 	public void testGameAdd() {
@@ -45,16 +47,15 @@ public class GameServiceInMemoryTest {
 	
 	@Test
 	public void testMove() {
-		Desk desk = new DeskFactory().getDesk();
 		User white = new User();
 		white.setId(1);
 		white.setUsername("player 1");
 		User black = new User();
 		black.setId(2);
 		black.setUsername("player 2");
-		Game game = new Game(white, ColorPolicy.WHITE_CREATOR);
-		game = gameService.add(game);
-		
+		Game game = gameService.add(white, black, ColorPolicy.WHITE_CREATOR);
+		game.startGame(new StandartDeskService().create());
+		System.out.println(game.getMoverUsername());
 		gameService.move(game.getId(), white, new Move(new Field(2, Column.e), new Field(4, Column.e)));
 		assertTrue(gameService.get(game.getId()).getDesk().getFields().containsKey(new Field(4, Column.e)));
 	}

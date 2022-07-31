@@ -1,6 +1,5 @@
 package com.teslenko.chessbackend.entity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public abstract class Figure {
 		if(field.getRowId() < 1 || field.getRowId() > 8) {
 			throw new ImpossibleMoveException("Impossible move for figure: " + this + ", field: " + field);
 		}
-		List<Field> moves = availableMoves(fields);
+		List<Field> moves = availableMoves(desk);
 		if(moves.contains(field)) {
 			if(fields.containsKey(field)) {
 				Figure figureToTake = fields.get(field);
@@ -66,7 +65,9 @@ public abstract class Figure {
 		return false;
 	}
 	
-	public abstract List<Field> availableMoves(Map<Field, Figure> fields);
+	
+	
+	public abstract List<Field> availableMoves(Desk desk);
 	
 	
 	public Field getField() {
