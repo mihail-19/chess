@@ -77,7 +77,6 @@ public class RookTest {
 		desk.moveFigure(Color.white, field, moveField);
 		assertTrue(desk.getFields().containsKey(moveField));
 		assertEquals(desk.getFields().get(moveField).getType(), FigureType.rook);
-		assertFalse(desk.getFigures().contains(takenFigure));
 		assertTrue(desk.getTakenFiguresBlack().contains(takenFigure));
 		System.out.println(desk.nicePrinted());
 	}

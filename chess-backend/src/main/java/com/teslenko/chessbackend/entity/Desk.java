@@ -1,6 +1,7 @@
 package com.teslenko.chessbackend.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,7 +18,6 @@ import com.teslenko.chessbackend.exception.NoSuchFigureException;
 public class Desk {
 	private static Logger LOG = LoggerFactory.getLogger(Desk.class);
 	private static final int FIELD_STRING_LENGTH = 14;
-	private List<Figure> figures;
 	@JsonIgnore
 	private Map<Field, Figure> fields;
 	private List<Figure> takenFiguresWhite = new ArrayList<>();
@@ -28,21 +28,86 @@ public class Desk {
 	private boolean isCastlingAvailableBlackRight = true;
 	private boolean isUnderCheckWhite;
 	private boolean isUnderCheckBlack;
-
+	private List<MoveRecord> moveRecords = new ArrayList<>();
+	/**
+	 * Copy constructor. Returns a deep copy from given {@link Desk}
+	 */
+	public Desk(Desk desk) {
+		this.isCastlingAvailableBlackLeft = desk.isCastlingAvailableBlackLeft;
+		this.isCastlingAvailableBlackRight = desk.isCastlingAvailableBlackRight;
+		this.isCastlingAvailableWhiteLeft = desk.isCastlingAvailableWhiteLeft;
+		this.isCastlingAvailableWhiteRight = desk.isCastlingAvailableWhiteRight;
+		this.isUnderCheckBlack = desk.isUnderCheckBlack;
+		this.isUnderCheckWhite = desk.isUnderCheckWhite;
+		this.takenFiguresBlack = desk.takenFiguresBlack.stream().map(f -> {
+			try {
+				return (Figure) f.clone();
+			} catch (CloneNotSupportedException e) {
+				LOG.error("error while cloning takeFiguresBlack {}", e.getMessage());
+				return null;
+			}
+		}).collect(Collectors.toList());
+		this.moveRecords = desk.moveRecords.stream().map(f -> {
+			try {
+				return (MoveRecord) f.clone();
+			} catch (CloneNotSupportedException e) {
+				LOG.error("error while cloning moves {}", e.getMessage());
+				return null;
+			}
+		}).collect(Collectors.toList());
+		this.takenFiguresWhite = desk.takenFiguresWhite.stream().map(f -> {
+			try {
+				return (Figure) f.clone();
+			} catch (CloneNotSupportedException e) {
+				LOG.error("error while cloning takenFiguresWhite {}", e.getMessage());
+				return null;
+			}
+		}).collect(Collectors.toList());
+		this.fields = desk.getFields().values()
+				.stream().map(f -> {
+					try {
+						return (Figure) f.clone();
+					} catch (CloneNotSupportedException e) {
+						LOG.error("error while cloning fields {}", e.getMessage());
+						return null;
+					}
+				})
+				.collect(Collectors.toMap(Figure::getField, Function.identity()));
+	}
+	
+	
 	public Desk(List<Figure> figures) {
-		this.figures = figures;
 		fields = figures.stream().collect(Collectors.toMap(Figure::getField, Function.identity()));
 	}
 
-	public void addFigure(Figure figure) {
-		figures.add(figure);
+	/**
+	 * Returns in state before last move
+	 */
+	public void undoMove() {
+		if(moveRecords.size() == 0) {
+			return;
+		}
+		MoveRecord mr = moveRecords.remove(moveRecords.size() - 1);
+		LOG.info("undo move {} ", mr);
+		Figure movedFigure = fields.remove(mr.getMove().getTo());
+		movedFigure.setField(mr.getMove().getFrom());
+		fields.put(mr.getMove().getFrom(), movedFigure);
+		Figure takenFigure = mr.getTakenFigure();
+		if(takenFigure != null) {
+			if(takenFigure.getColor() == Color.white) {
+				takenFiguresWhite.remove(takenFigure);
+			} else {
+				takenFiguresBlack.remove(takenFigure);
+			}
+			takenFigure.setIsAlive(true);
+			fields.put(takenFigure.getField(), takenFigure);
+		}
+		
 	}
-
 	public void takeFigure(Figure figure) {
 		LOG.info("taking figure {}", figure);
 		figure.setIsAlive(false);
 		fields.remove(figure.getField());
-		figures.remove(figure);
 		if (figure.getColor() == Color.white) {
 			takenFiguresWhite.add(figure);
 		} else {
@@ -65,28 +130,16 @@ public class Desk {
 				LOG.error("error while move: figure color is {}, move color is {}", deskFigure.getColor(), moveColor);
 				throw new ImpossibleMoveException("trying to move wrong color figure");
 			}
-			deskFigure.move(this, to);
+			Figure takenFigure = deskFigure.move(this, to);
 			proccessCheck();
+			moveRecords.add(new MoveRecord(new Move(from, to), moveColor, takenFigure));
 		} else {
 			throw new NoSuchFigureException("no figure to move in field [" + from + "]");
 		}
 
 	}
+	
 
-	/**
-	 * Finds a figure on desk according to the given one
-	 * 
-	 * @param figure
-	 * @return
-	 */
-	@Deprecated
-	public Figure getFigure(Figure figure) {
-		if (!figures.contains(figure)) {
-			throw new NoSuchFigureException("figure is not presented in field [" + figure + "]");
-		}
-		int index = figures.indexOf(figure);
-		return figures.get(index);
-	}
 
 	/**
 	 * Sets a check flags if there is a check situation on a field
@@ -94,14 +147,14 @@ public class Desk {
 	public void proccessCheck() {
 		setIsUnderCheckWhite(false);
 		setIsUnderCheckBlack(false);
-		for(Entry<Field, Figure> entry : fields.entrySet()) {
+		for (Entry<Field, Figure> entry : fields.entrySet()) {
 			List<Field> moves = entry.getValue().availableMoves(this);
 			moves.forEach(m -> {
-				if(fields.containsKey(m)) {
+				if (fields.containsKey(m)) {
 					Figure f = fields.get(m);
 					Color color = f.getColor();
-					if(f.getType() == FigureType.king && color != entry.getValue().getColor()) {
-						if(color == Color.white) {
+					if (f.getType() == FigureType.king && color != entry.getValue().getColor()) {
+						if (color == Color.white) {
 							LOG.info(" white check");
 							setIsUnderCheckWhite(true);
 						} else {
@@ -114,9 +167,6 @@ public class Desk {
 		}
 	}
 
-	public List<Figure> getFigures() {
-		return figures;
-	}
 
 	public Map<Field, Figure> getFields() {
 		return fields;
@@ -164,7 +214,7 @@ public class Desk {
 	}
 
 	private void appendRow(int rowId, StringBuilder sb) {
-		List<Figure> rowFigures = figures.stream().filter(f -> f.getField().getRowId() == rowId)
+		List<Figure> rowFigures = fields.values().stream().filter(f -> f.getField().getRowId() == rowId)
 				.sorted((f1, f2) -> f1.getField().getColumnId().compareTo(f2.getField().getColumnId()))
 				// .map(f -> " " + f.getType().toString() + "(" +
 				// f.getColor().toString().substring(0,1) + ")")
@@ -241,4 +291,21 @@ public class Desk {
 		this.isCastlingAvailableBlackRight = isCastlingAvailableBlackRight;
 	}
 
+
+	public List<MoveRecord> getMoveRecords() {
+		return moveRecords;
+	}
+
+
+	public void setMoveRecords(List<MoveRecord> moveRecords) {
+		this.moveRecords = moveRecords;
+	}
+
+
+	public Collection<Figure> getFigures() {
+		return fields.values();
+	}
+
+
+	
 }

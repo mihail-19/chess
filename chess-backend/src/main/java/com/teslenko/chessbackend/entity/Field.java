@@ -1,6 +1,6 @@
 package com.teslenko.chessbackend.entity;
 
-public class Field {
+public class Field implements Cloneable {
 	private int rowId;
 	private Column columnId;
 	
@@ -10,6 +10,11 @@ public class Field {
 	}
 	
 	public Field() {
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new Field(rowId, columnId);
 	}
 	
 	public Field getShiftedField(int rowShift, int columnShift) {

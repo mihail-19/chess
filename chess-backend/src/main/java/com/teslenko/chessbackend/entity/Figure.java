@@ -1,75 +1,128 @@
 package com.teslenko.chessbackend.entity;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 
 /**
  * Chess figure with coordinates on desk, color and type/
+ * 
  * @author Mykhailo Teslenko
  *
  */
-public abstract class Figure {
+public abstract class Figure implements Cloneable {
+	private static final Logger LOG = LoggerFactory.getLogger(Figure.class);
 	private Field field;
 	private Color color;
 	private FigureType type;
 	private boolean isAlive = true;
-	
+
 	public Figure(Field field, Color color, FigureType type) {
 		this.field = field;
 		this.color = color;
 		this.type = type;
 	}
-	
+
 	public Figure() {
 	}
-	
+
 	/**
 	 * Moves figure to the given field if possible or throws an exception.
+	 * 
 	 * @param rowId
 	 * @param columnId
 	 */
-	public void move(Desk desk, Field field) {
+	public Figure move(Desk desk, Field field) {
 		Map<Field, Figure> fields = desk.getFields();
-		if(field.getRowId() < 1 || field.getRowId() > 8) {
+		Figure figureToTake = null;
+		if (field.getRowId() < 1 || field.getRowId() > 8) {
 			throw new ImpossibleMoveException("Impossible move for figure: " + this + ", field: " + field);
 		}
-		List<Field> moves = availableMoves(desk);
-		if(moves.contains(field)) {
-			if(fields.containsKey(field)) {
-				Figure figureToTake = fields.get(field);
-				if(figureToTake.getColor() != getColor()) {
+		List<Field> moves = checkStateMovesRemove(desk, availableMoves(desk));
+		if (moves.contains(field)) {
+			if (fields.containsKey(field)) {
+				figureToTake = fields.get(field);
+				if (figureToTake.getColor() != getColor()) {
 					desk.takeFigure(fields.get(field));
 				} else {
-					throw new ImpossibleMoveException("Impossible to take figure with same color moving figure " + this +  ", field " + field);
+					LOG.error("Impossible to take figure with same color moving figure {}, field {}", this, field);
+					throw new ImpossibleMoveException(
+							"Impossible to take figure with same color moving figure " + this + ", field " + field);
 				}
-			} 
+			}
 			fields.remove(this.field);
 			this.field = field;
 			fields.put(field, this);
 		} else {
 			throw new ImpossibleMoveException("Impossible move for figure: " + this + ", field: " + field);
 		}
+		return figureToTake;
 	}
-	
+
 	public boolean addMoveIfValid(int rowShift, int columnShift, Map<Field, Figure> fields, List<Field> moves) {
 		Field field = getField();
-		if(field.isValidShift(rowShift, columnShift)) {
+		if (field.isValidShift(rowShift, columnShift)) {
 			Field shifted = field.getShiftedField(rowShift, columnShift);
-			if(!fields.containsKey(shifted) || fields.get(shifted).getColor() != this.getColor()) {
+			if (!fields.containsKey(shifted)) {
 				moves.add(shifted);
 				return true;
+			} else if (fields.get(shifted).getColor() != this.getColor()) {
+				moves.add(shifted);
 			}
 		}
 		return false;
 	}
-	
-	
-	
+
+	@Override
+	public abstract Object clone() throws CloneNotSupportedException;
+
 	public abstract List<Field> availableMoves(Desk desk);
-	
-	
+
+	/**
+	 * Removes moves which are impossible under check state (i.e. after move check
+	 * state stays) Move performed on desk's copy, so real desk is not changed.
+	 * 
+	 * @param desk
+	 * @param moves
+	 */
+	public List<Field> checkStateMovesRemove(Desk desk, List<Field> moves) {
+		if ((color == Color.white && desk.getIsUnderCheckWhite())
+				|| (color == Color.black && desk.getIsUnderCheckBlack())) {
+			Desk tempDesk = new Desk(desk);
+			Iterator<Field> iterator = moves.iterator();
+			while (iterator.hasNext()) {
+				Field move = iterator.next();
+				Map<Field, Figure> fields = tempDesk.getFields();
+				Figure figureToTake = null;
+				if (fields.containsKey(move)) {
+					figureToTake = fields.get(move);
+					if (figureToTake.getColor() != getColor()) {
+						tempDesk.takeFigure(fields.get(move));
+					} 
+				}
+				fields.remove(this.field);
+				fields.put(move, this);
+				Field old = this.field;
+				this.field = move;
+				tempDesk.getMoveRecords().add(new MoveRecord(new Move(this.field, move), color, figureToTake));
+				tempDesk.proccessCheck();
+				if ((color == Color.white && tempDesk.getIsUnderCheckWhite())
+						|| (color == Color.black && tempDesk.getIsUnderCheckBlack())) {
+					iterator.remove();
+				}
+				tempDesk.undoMove();
+				this.field = old;
+			}
+		}
+		
+		return moves;
+	}
+
 	public Field getField() {
 		return field;
 	}
@@ -85,12 +138,15 @@ public abstract class Figure {
 	public Color getColor() {
 		return color;
 	}
+
 	public void setColor(Color color) {
 		this.color = color;
 	}
+
 	public FigureType getType() {
 		return type;
 	}
+
 	public void setType(FigureType type) {
 		this.type = type;
 	}
@@ -105,7 +161,8 @@ public abstract class Figure {
 
 	@Override
 	public String toString() {
-		return field.getColumnId().toString() + field.getRowId() + " " + type +  "(" + color.toString().substring(0,1) + ")";
+		return field.getColumnId().toString() + field.getRowId() + " " + type + "(" + color.toString().substring(0, 1)
+				+ ")";
 	}
 
 	@Override
@@ -142,6 +199,4 @@ public abstract class Figure {
 		return true;
 	}
 
-
-	
 }

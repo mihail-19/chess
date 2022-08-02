@@ -68,7 +68,6 @@ public class PawnTest {
 		desk.moveFigure(Color.white, field, moveField);
 		assertTrue(desk.getFields().containsKey(moveField));
 		assertTrue(desk.getTakenFiguresBlack().contains(takenFigure));
-		assertFalse(desk.getFigures().contains(takenFigure));
 		
 	}
 }

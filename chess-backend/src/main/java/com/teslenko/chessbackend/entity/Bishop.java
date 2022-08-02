@@ -5,9 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Bishop extends Figure{
+public class Bishop extends Figure implements Cloneable{
 	public Bishop(Field field, Color color, FigureType type) {
 		super(field, color, type);
+	}
+	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new Bishop((Field) getField().clone(), getColor(), getType());
 	}
 	
 	@Override
@@ -41,7 +46,6 @@ public class Bishop extends Figure{
 		while(isAvailable) {
 			isAvailable = addMoveIfValid(++shiftRow, ++shiftColumn, fields, moves);
 		}
-		
 		return moves;
 	}
 	

@@ -50,6 +50,20 @@ public class BishopTest {
 		assertEquals(desk.getFields().get(moveField).getType(), FigureType.bishop);
 		System.out.println(desk.nicePrinted());
 	}
+	
+	@Test
+	public void testNotMoveThroughFigures() {
+		Field field = new Field(2, Column.d);
+		Field moveField = new Field(4, Column.d);
+		desk.moveFigure(Color.white, field, moveField);
+		field = new Field(1, Column.c);
+		moveField = new Field(4, Column.f);
+		desk.moveFigure(Color.white, field, moveField);
+		Field cfield = new Field(4, Column.f);
+		Field cmoveField = new Field(8, Column.b);
+		assertThrows(ImpossibleMoveException.class, () -> desk.moveFigure(Color.white, cfield, cmoveField));
+		System.out.println(desk.nicePrinted());
+	}
 	@Test
 	public void testEatFigure() {
 		Field field = new Field(2, Column.d);
@@ -64,7 +78,6 @@ public class BishopTest {
 		desk.moveFigure(Color.white, field, moveField);
 		assertTrue(desk.getFields().containsKey(moveField));
 		assertEquals(desk.getFields().get(moveField).getType(), FigureType.bishop);
-		assertFalse(desk.getFigures().contains(takenFigure));
 		assertTrue(desk.getTakenFiguresBlack().contains(takenFigure));
 		System.out.println(desk.nicePrinted());
 	}

@@ -5,15 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Rook extends Figure{
+public class Rook extends Figure implements Cloneable{
 	public Rook(Field field, Color color, FigureType type) {
 		super(field, color, type);
 	}
-	
 	@Override
-	public void move(Desk desk, Field field) {
+	public Object clone() throws CloneNotSupportedException {
+		return new Rook((Field) getField().clone(), getColor(), getType());
+	}
+	@Override
+	public Figure move(Desk desk, Field field) {
 		Field old = this.getField();
-		super.move(desk, field);
+		Figure figureToTake = super.move(desk, field);
 		if(desk.getIsCastlingAvailableWhiteLeft() && getColor() == Color.white && old.getColumnId() == Column.a) {
 			desk.setIsCastlingAvailableWhiteLeft(false);
 		}
@@ -26,6 +29,7 @@ public class Rook extends Figure{
 		if(desk.getIsCastlingAvailableBlackRight() && getColor() == Color.black && old.getColumnId() == Column.h) {
 			desk.setIsCastlingAvailableBlackRight(false);
 		}
+		return figureToTake;
 	}
 	
 	@Override
@@ -54,7 +58,6 @@ public class Rook extends Figure{
 		while(isAvailable) {
 			isAvailable = addMoveIfValid(0, --columnShift, fields, moves);
 		}
-		
 		return moves;
 	}
 	

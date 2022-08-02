@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 
-public class Knight extends Figure{
+public class Knight extends Figure implements Cloneable{
 	public Knight(Field field, Color color, FigureType type) {
 		super(field, color, type);
 	}
-	
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return new Knight((Field) getField().clone(), getColor(), getType());
+	}
 	@Override
 	public List<Field> availableMoves(Desk desk){
 		Map<Field, Figure> fields = desk.getFields();

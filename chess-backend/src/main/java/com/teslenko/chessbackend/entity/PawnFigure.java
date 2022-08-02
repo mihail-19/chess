@@ -5,17 +5,21 @@ import java.util.List;
 import java.util.Map;
 
 
-public class PawnFigure extends Figure {
+public class PawnFigure extends Figure implements Cloneable {
 	public PawnFigure(Field field, Color color, FigureType type) {
 		super(field, color, type);
 	}
-	
 	@Override
-	public void move(Desk desk, Field field) {
-		super.move(desk, field);
+	public Object clone() throws CloneNotSupportedException {
+		return new PawnFigure((Field) getField().clone(), getColor(), getType());
+	}
+	@Override
+	public Figure move(Desk desk, Field field) {
+		Figure figureToTake = super.move(desk, field);
 		if((getColor() == Color.white && getField().getRowId() == 8) || (getColor() == Color.black && getField().getRowId() == 1)) {
 			setType(FigureType.queen);
 		}
+		return figureToTake;
 	}
 	
 	@Override
@@ -37,7 +41,6 @@ public class PawnFigure extends Figure {
 			addMoveIfValid(-1, -1, fields, moves);
 			addMoveIfValid(-1, 1, fields, moves);
 		}
-		
 		return moves;
 	}
 	

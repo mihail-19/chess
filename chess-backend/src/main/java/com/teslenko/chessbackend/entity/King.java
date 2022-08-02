@@ -5,15 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 
-public class King extends Figure{
+public class King extends Figure implements Cloneable{
 	public King(Field field, Color color, FigureType type) {
 		super(field, color, type);
 	}
-	
 	@Override
-	public void move(Desk desk, Field field) {
+	public Object clone() throws CloneNotSupportedException {
+		return new King((Field) getField().clone(), getColor(), getType());
+	}
+	@Override
+	public Figure move(Desk desk, Field field) {
 		int shift = field.getColumnId().ordinal() - getField().getColumnId().ordinal();
-		super.move(desk, field);
+		Figure figureToTake = super.move(desk, field);
 	
 		//rook move is castling - in case shift between king moves is bigger than 1
 		//Unreachable code if move is not possible
@@ -42,6 +45,7 @@ public class King extends Figure{
 			desk.setIsCastlingAvailableBlackLeft(false);
 			desk.setIsCastlingAvailableBlackRight(false);
 		}
+		return figureToTake;
 	}
 	
 	public List<Field> availableMoves(Desk desk){
