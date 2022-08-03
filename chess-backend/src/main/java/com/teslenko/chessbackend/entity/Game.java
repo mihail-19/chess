@@ -1,10 +1,14 @@
 package com.teslenko.chessbackend.entity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 import com.teslenko.chessbackend.exception.UnautorizedPlayerException;
 
 public class Game {
+	private static final Logger LOG = LoggerFactory.getLogger(Game.class);
 	private long id;
 	private Desk desk;
 
@@ -18,7 +22,8 @@ public class Game {
 	private String moverUsername;
 	private boolean isStarted;
 	private boolean isFinished;
-	
+	private Winner winner;
+	private GameFinishProposition gameFinishProposition;
 	public Game(User creator, ColorPolicy colorPolicy) {
 		this.creator = creator;
 		this.colorPolicy = colorPolicy;
@@ -26,7 +31,16 @@ public class Game {
 	public Game() {
 		
 	}
-	
+	public Color getUserColor(User user) {
+		if(creator.getUsername().equals(user.getUsername())) {
+			return creatorColor;
+		} else if (opponent.getUsername().equals(user.getUsername())) {
+			return creatorColor == Color.white ? Color.black : Color.white;
+		} else {
+			LOG.error("error getting user color: user {} is not player in game {}", user, this);
+			throw new UnautorizedPlayerException("error getting user color: user is not player in game");
+		}
+	}
 	public void addPlayer(User player) {
 		this.opponent = player;
 	}
@@ -52,8 +66,13 @@ public class Game {
 		isStarted = true;
 	}
 	
-	public void finishGame() {
+	/**
+	 * Finishes the game with given winner
+	 * @param winner
+	 */
+	public void finishGame(Winner winner) {
 		isFinished = true;
+		this.winner = winner;
 	}
 	
 	/**
@@ -74,9 +93,24 @@ public class Game {
 		}
 		if(moverUsername.equals(user.getUsername())) {
 			desk.moveFigure(moveColor, from, to);
+			tryFinishGame();
 			switchMover();
 		} else {
 				throw new ImpossibleMoveException("trying to move black figure by white player");
+		}
+	}
+	
+	//Trying to finish game if checkmate or pat. Set winner from checkmate state of the desk.
+	private void tryFinishGame() {
+		Checkmate checkmate = desk.getCheckmate();
+		if(checkmate != Checkmate.NONE) {
+			Winner winner = Winner.draw;
+			if(checkmate == Checkmate.WHITE_CHECKMATE ) {
+				winner = Winner.black;
+			} else if(checkmate == Checkmate.BLACK_CHECKMATE) {
+				winner = Winner.white;
+			}
+			finishGame(winner);
 		}
 	}
 	
@@ -165,6 +199,20 @@ public class Game {
 		this.moverUsername = moverUsername;
 	}
 	
+	
+	public Winner getWinner() {
+		return winner;
+	}
+	public void setWinner(Winner winner) {
+		this.winner = winner;
+	}
+	
+	public GameFinishProposition getGameFinishProposition() {
+		return gameFinishProposition;
+	}
+	public void setGameFinishProposition(GameFinishProposition gameFinishProposition) {
+		this.gameFinishProposition = gameFinishProposition;
+	}
 	@Override
 	public String toString() {
 		String creatorUsername = creator == null ? " - " : creator.getUsername();

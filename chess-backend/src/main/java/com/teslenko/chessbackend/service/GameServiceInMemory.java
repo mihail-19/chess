@@ -8,12 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.teslenko.chessbackend.entity.Color;
 import com.teslenko.chessbackend.entity.ColorPolicy;
 import com.teslenko.chessbackend.entity.Desk;
 import com.teslenko.chessbackend.entity.Game;
+import com.teslenko.chessbackend.entity.GameFinishProposition;
 import com.teslenko.chessbackend.entity.Move;
 import com.teslenko.chessbackend.entity.User;
+import com.teslenko.chessbackend.entity.Winner;
 import com.teslenko.chessbackend.exception.ChessException;
+import com.teslenko.chessbackend.exception.UnautorizedPlayerException;
 
 @Service
 public class GameServiceInMemory implements GameService {
@@ -134,9 +138,50 @@ public class GameServiceInMemory implements GameService {
 	}
 
 	@Override
-	public Game stopUserGame(User user) {
+	public Game offerStopUserGame(User user, GameFinishProposition finishProposition) {
+		LOG.info("sending offer to stop game from {}, offer: {}", user, finishProposition);
 		Game game = user.getGame();
-		game.finishGame();
+		Color userColor = game.getUserColor(user);
+		if(!user.getUsername().equals(finishProposition.getSenderUsername())){
+			LOG.error("error while sending stop game invitation: user name {} and porposition name {} are not equal", user, finishProposition.getSenderUsername());
+			throw new UnautorizedPlayerException("error while sending stop game invitation: user name and porposition name are not equal");
+		}
+		game.setGameFinishProposition(finishProposition);
+		userService.sendRefreshBySocket(game.getCreator());
+		userService.sendRefreshBySocket(game.getOpponent());
+		return game;
+	}
+
+	@Override
+	public Game acceptStopUserGame(User user) {
+		LOG.info("accepting stop game by {}", user);
+		Game game = user.getGame();
+		GameFinishProposition finishProps = game.getGameFinishProposition();
+		if(finishProps == null) {
+			LOG.error("error accepting stop game: no offer was send in game {}", game);
+			throw new ChessException("error accepting stop game: no offer was send in game");
+		}
+		if(finishProps.getSenderUsername().equals(user.getUsername())) {
+			LOG.error("error accepting stop game: could not accept self send props by {} in game {}", user, game);
+			throw new ChessException("error accepting stop game: could not accept self send props");
+		}
+		Winner winner = Winner.draw;
+		if(!finishProps.getIsDraw()) {
+			if(game.getCreator().equals(user)) {
+				if(game.getCreatorColor() == Color.white) {
+					winner = Winner.white;
+				} else {
+					winner = Winner.black;
+				}
+			} else {
+				if(game.getCreatorColor() == Color.white) {
+					winner = Winner.black;
+				} else {
+					winner = Winner.white;
+				}
+			}
+		} 
+		game.finishGame(winner);
 		userService.sendRefreshBySocket(game.getCreator());
 		userService.sendRefreshBySocket(game.getOpponent());
 		return game;

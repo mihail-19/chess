@@ -28,6 +28,7 @@ public class Desk {
 	private boolean isCastlingAvailableBlackRight = true;
 	private boolean isUnderCheckWhite;
 	private boolean isUnderCheckBlack;
+	private Checkmate checkmate = Checkmate.NONE;
 	private List<MoveRecord> moveRecords = new ArrayList<>();
 	/**
 	 * Copy constructor. Returns a deep copy from given {@link Desk}
@@ -132,6 +133,7 @@ public class Desk {
 			}
 			Figure takenFigure = deskFigure.move(this, to);
 			proccessCheck();
+			processCheckmate(moveColor);
 			moveRecords.add(new MoveRecord(new Move(from, to), moveColor, takenFigure));
 		} else {
 			throw new NoSuchFigureException("no figure to move in field [" + from + "]");
@@ -165,6 +167,38 @@ public class Desk {
 				}
 			});
 		}
+		
+	}
+
+
+	/**
+	 * Processes checkmate, if no available moves - sets state of checkmate or pat
+	 */
+	public boolean processCheckmate(Color moveColor) {
+		List<Figure> figures = fields.values().stream()
+			.filter(f -> f.getColor() != moveColor)
+			.collect(Collectors.toList());
+		for(Figure f: figures) {
+			List<Field> moves = f.checkStateMovesRemove(this, f.availableMoves(this));
+			if(moves.size() > 0){
+				LOG.info("found moves - no checkmate, moveColor {}, figure {}, moves {}", moveColor, f, moves);
+				return false;
+			}
+		}
+		if(moveColor == Color.black) {
+			if(isUnderCheckWhite) {
+				this.checkmate = Checkmate.WHITE_CHECKMATE;
+			} else {
+				this.checkmate = Checkmate.WHITE_PAT;
+			}	
+		} else {
+			if(isUnderCheckBlack) {
+				this.checkmate = Checkmate.BLACK_CHECKMATE;
+			} else {
+				this.checkmate = Checkmate.BLACK_PAT;
+			}	
+		}
+		return true;
 	}
 
 
@@ -304,6 +338,16 @@ public class Desk {
 
 	public Collection<Figure> getFigures() {
 		return fields.values();
+	}
+
+
+	public Checkmate getCheckmate() {
+		return checkmate;
+	}
+
+
+	public void setCheckmate(Checkmate checkmate) {
+		this.checkmate = checkmate;
 	}
 
 

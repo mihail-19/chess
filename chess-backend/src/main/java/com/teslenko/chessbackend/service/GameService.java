@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.teslenko.chessbackend.entity.ColorPolicy;
 import com.teslenko.chessbackend.entity.Game;
+import com.teslenko.chessbackend.entity.GameFinishProposition;
 import com.teslenko.chessbackend.entity.Move;
 import com.teslenko.chessbackend.entity.User;
 
@@ -17,7 +18,8 @@ public interface GameService {
 	Game addPlayer(long gameId, String creator, String newPlayer);
 	Game start(long id);
 	Game startUserGame(User user);
-	Game stopUserGame(User user);
+	Game offerStopUserGame(User user, GameFinishProposition gameFinishCondition);
+	Game acceptStopUserGame(User user);
 	void remove(long id);
 	Game move(long id, User user, Move move);
 }
