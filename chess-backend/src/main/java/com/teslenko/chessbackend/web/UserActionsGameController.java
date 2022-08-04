@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,29 +14,30 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.teslenko.chessbackend.entity.ColorPolicy;
-import com.teslenko.chessbackend.entity.Desk;
-import com.teslenko.chessbackend.entity.DeskFactory;
 import com.teslenko.chessbackend.entity.Game;
+import com.teslenko.chessbackend.entity.GameFinishProposition;
 import com.teslenko.chessbackend.entity.Move;
 import com.teslenko.chessbackend.entity.User;
 import com.teslenko.chessbackend.exception.ChessException;
 import com.teslenko.chessbackend.service.GameService;
-import com.teslenko.chessbackend.service.GameServiceInMemory;
-import com.teslenko.chessbackend.service.InvitationService;
 import com.teslenko.chessbackend.service.UserService;
 
+
+/**
+ * Actions for game. Game is chosen for given user
+ * @author Mykhailo Teslenko
+ *
+ */
 @RestController
 @RequestMapping("/actions/game")
 public class UserActionsGameController {
 	private static final Logger LOG = LoggerFactory.getLogger(UserActionsGameController.class);
 	private GameService gameService;
 	private UserService userService;
-	private InvitationService invitationService;
 	@Autowired
-	public UserActionsGameController(GameService gameService, UserService userService, InvitationService invitationService) {
+	public UserActionsGameController(GameService gameService, UserService userService) {
 		this.gameService = gameService;
 		this.userService = userService;
-		this.invitationService = invitationService;
 	}
 	
 	@GetMapping
@@ -83,11 +83,19 @@ public class UserActionsGameController {
 		return game;
 	}
 	
-	@GetMapping("/stop")
+	@PostMapping("/stop-offer")
+	public Game stop(Principal principal, @RequestParam Boolean isDraw) {
+		LOG.info("stop game by {}", principal.getName());
+		User user = userService.get(principal.getName());
+		GameFinishProposition offer = new GameFinishProposition(user.getUsername(), isDraw);
+		Game game = gameService.offerStopUserGame(user, offer);
+		return game;
+	}
+	@GetMapping("/accept-stop")
 	public Game stop(Principal principal) {
 		LOG.info("stop game by {}", principal.getName());
 		User user = userService.get(principal.getName());
-		Game game = gameService.stopUserGame(user);
+		Game game = gameService.acceptStopUserGame(user);
 		return game;
 	}
 	
