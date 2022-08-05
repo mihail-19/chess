@@ -22,20 +22,49 @@ const Invitation = ({user}) => {
         if(isAuth && user && (!user.game || user.game.isFinished)){
             return (
                 <div className="invitations">
-                    <div className="invitations__form">
-                        Send invitation: 
-                        <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
-                        <button className="actions__button" onClick={() => sendInvitation(name)}>Send</button>
+                    <div className="actions__form">
+                        <div className="actions__form-line">
+                            <label>Invitation:</label> 
+                            <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
+                        </div>
+                        <div className="actions__form-line">
+                            <button className="actions__button" onClick={() => sendInvitation(name)}>Send</button>
+                        </div>
                     </div>
-                    <div className="invitations__list">
-                        {invs.map(i =>
-                             <div>{i.id}
-                                <button className="actions__button" onClick={() => denyInvitation(i)}>deny</button>
-                                <button className="actions__button" onClick={() => acceptInvitation(i)}>accept</button>
-                            </div>)}
-                    </div>
+                    {receivedInitations()}
+                    {sendedInvitations()}
                 </div>
             )
+        }
+
+        function receivedInitations(){
+            const invsFiltered = invs.filter(i => i.recepient.username === user.username)
+            if(invsFiltered && invsFiltered.length > 0){
+                return (
+                    <div className="invitations__list">
+                     <h3>Invitations received</h3>
+                        {invsFiltered.map(i =>
+                         <div> {i.sender.username}
+                            <button className="actions__button" onClick={() => denyInvitation(i)}>deny</button>
+                            <button className="actions__button" onClick={() => acceptInvitation(i)}>accept</button>
+                        </div>)}
+                    </div>
+                )
+            }
+        }
+
+        function sendedInvitations(){
+            const invsFiltered = invs.filter(i => i.sender.username === user.username)
+            if(invsFiltered && invsFiltered.length > 0){
+                return (
+                    <div className="invitations__list">
+                        <h3>Invitations sent</h3>
+                        {invsFiltered.map(i =>
+                             <div>{i.recepient.username}
+                            </div>)}
+                    </div>
+                )
+            }
         }
 
         async function sendInvitation(username){

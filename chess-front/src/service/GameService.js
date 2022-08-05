@@ -46,5 +46,25 @@ function gameStop(){
     
     return res    
 }
+function offerGameStop(isDraw){
+    const headers = {
+        "Authorization": localStorage.getItem("access_header")
+    }
+    const fd = new FormData();
+    fd.append('isDraw', isDraw)
+    const url = localStorage.getItem("server-url") + "/actions/game/stop-offer"
+    const res = axios.post(url, fd, {headers: headers})
+    
+    return res
+}
 
-export {getGame, gameMove, gameStart, gameStop}
+function acceptGameStop(){
+    const headers = {
+        "Authorization": localStorage.getItem("access_header")
+    }
+    const url = localStorage.getItem("server-url") + "/actions/game/accept-stop"
+    const res = axios.get(url, {headers: headers})
+    
+    return res
+}
+export {getGame, gameMove, gameStart, gameStop, offerGameStop, acceptGameStop}

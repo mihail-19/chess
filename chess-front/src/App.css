@@ -1,7 +1,7 @@
 .container{
   background-color: #3c4235;
   display: flex;
-  padding: 10px;
+  padding: 5px 10px 10px 35px;
   height: 100%;
 }
 .header{
