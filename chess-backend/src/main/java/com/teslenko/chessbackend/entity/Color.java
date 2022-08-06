@@ -6,5 +6,13 @@ package com.teslenko.chessbackend.entity;
  *
  */
 public enum Color {
-	white, black
+	white, black;
+	
+	public Color other() {
+		if(this == white) {
+			return black;
+		} else {
+			return white;
+		}
+	}
 }

@@ -1,12 +1,13 @@
 package com.teslenko.chessbackend.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 public class Invitation {
 	private long id;
-	@JsonIgnore
+	@JsonIgnoreProperties(value = {"game", "invitations"})
 	private User sender;
-	@JsonIgnore
+	@JsonIgnoreProperties(value = {"game", "invitations"})
 	private User recepient;
 	public User getSender() {
 		return sender;

@@ -147,6 +147,10 @@ public class GameServiceInMemory implements GameService {
 			throw new UnautorizedPlayerException("error while sending stop game invitation: user name and porposition name are not equal");
 		}
 		game.setGameFinishProposition(finishProposition);
+		if(!finishProposition.getIsDraw()) {
+			Winner winner = Winner.valueOf(userColor.other().toString());
+			game.finishGame(winner);
+		}
 		userService.sendRefreshBySocket(game.getCreator());
 		userService.sendRefreshBySocket(game.getOpponent());
 		return game;

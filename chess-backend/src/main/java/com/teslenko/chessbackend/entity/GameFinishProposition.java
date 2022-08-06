@@ -28,5 +28,9 @@ public class GameFinishProposition {
 	public void setSenderUsername(String senderUsername) {
 		this.senderUsername = senderUsername;
 	}
+	@Override
+	public String toString() {
+		return "GameFinishProposition [senderUsername=" + senderUsername + ", isDraw=" + isDraw + "]";
+	}
 	
 }
