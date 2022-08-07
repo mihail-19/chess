@@ -10,15 +10,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.teslenko.chessbackend.entity.ColorPolicy;
 import com.teslenko.chessbackend.entity.Column;
-import com.teslenko.chessbackend.entity.Desk;
-import com.teslenko.chessbackend.entity.DeskFactory;
 import com.teslenko.chessbackend.entity.Field;
 import com.teslenko.chessbackend.entity.Game;
 import com.teslenko.chessbackend.entity.Move;
 import com.teslenko.chessbackend.entity.User;
 
 public class GameServiceInMemoryTest {
-	GameService gameService = new GameServiceInMemory(new StandartDeskService(), new UserServiceInMemory(new BCryptPasswordEncoder(), Mockito.mock(SimpMessagingTemplate.class)));
+	GameService gameService = new GameServiceInMemory(new StandartDeskService(), 
+			Mockito.mock(MessagingService.class));
 	
 	@Test
 	public void testGameAdd() {

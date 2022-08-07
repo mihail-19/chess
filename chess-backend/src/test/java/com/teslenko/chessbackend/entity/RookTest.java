@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import com.teslenko.chessbackend.entity.figures.Figure;
+import com.teslenko.chessbackend.entity.figures.FigureType;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 
 public class RookTest {

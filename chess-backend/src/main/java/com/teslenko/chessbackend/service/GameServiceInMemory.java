@@ -23,11 +23,11 @@ import com.teslenko.chessbackend.exception.UnautorizedPlayerException;
 public class GameServiceInMemory implements GameService {
 	private static final Logger LOG = LoggerFactory.getLogger(GameServiceInMemory.class);
 	private DeskService deskService;
-	private UserService userService;
+	private MessagingService messagingService;
 	@Autowired
-	public GameServiceInMemory(DeskService deskService, UserService userService) {
+	public GameServiceInMemory(DeskService deskService,  MessagingService messagingService) {
 		this.deskService = deskService;
-		this.userService = userService;
+		this.messagingService = messagingService;
 	}
 
 	private List<Game> games = new ArrayList<>();
@@ -66,22 +66,14 @@ public class GameServiceInMemory implements GameService {
 		games.removeIf(g -> g.getId() == id);
 	}
 
-	@Override
-	public Game add(String creatorUsername, ColorPolicy colorPolicy) {
-		LOG.info("add game for creator name={}, color policy={}", creatorUsername, colorPolicy);
-		Game game = new Game(userService.get(creatorUsername), colorPolicy);
-		game.setId(maxId++);
-		games.add(game);
-		return game;
-	}
 
 	@Override
 	public Game move(long id, User user, Move move) {
 		LOG.info("game with ID={} move {} by {}", id, user, move);
 		Game game = games.stream().filter(g -> g.getId() == id).findFirst().orElseThrow();
 		game.move(user, move);
-		userService.sendRefreshBySocket(game.getCreator());
-		userService.sendRefreshBySocket(game.getOpponent());
+		messagingService.sendRefreshBySocket(game.getCreator());
+		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
 	}
 
@@ -91,8 +83,8 @@ public class GameServiceInMemory implements GameService {
 		Game game = get(id);
 		Desk desk = deskService.create();
 		game.startGame(desk);
-		userService.sendRefreshBySocket(game.getCreator());
-		userService.sendRefreshBySocket(game.getOpponent());
+		messagingService.sendRefreshBySocket(game.getCreator());
+		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
 	}
 	
@@ -111,12 +103,6 @@ public class GameServiceInMemory implements GameService {
 		return game;
 	}
 
-	@Override
-	public Game addPlayer(long gameId, String creator, String newPlayer) {
-		Game game = get(gameId);
-		//TODO
-		return null;
-	}
 
 	@Override
 	public Game startUserGame(User user) {
@@ -132,8 +118,8 @@ public class GameServiceInMemory implements GameService {
 		}
 		Desk desk = deskService.create();
 		game.startGame(desk);
-		userService.sendRefreshBySocket(game.getCreator());
-		userService.sendRefreshBySocket(game.getOpponent());
+		messagingService.sendRefreshBySocket(game.getCreator());
+		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
 	}
 
@@ -151,8 +137,8 @@ public class GameServiceInMemory implements GameService {
 			Winner winner = Winner.valueOf(userColor.other().toString());
 			game.finishGame(winner);
 		}
-		userService.sendRefreshBySocket(game.getCreator());
-		userService.sendRefreshBySocket(game.getOpponent());
+		messagingService.sendRefreshBySocket(game.getCreator());
+		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
 	}
 
@@ -186,8 +172,27 @@ public class GameServiceInMemory implements GameService {
 			}
 		} 
 		game.finishGame(winner);
-		userService.sendRefreshBySocket(game.getCreator());
-		userService.sendRefreshBySocket(game.getOpponent());
+		messagingService.sendRefreshBySocket(game.getCreator());
+		messagingService.sendRefreshBySocket(game.getOpponent());
+		return game;
+	}
+
+	@Override
+	public Game removeUserFromGame(User user) {
+		Game game = getForUser(user.getUsername());
+		if(game != null && game.getIsFinished()) {
+			if(game.getCreator().getUsername().equals(user.getUsername())) {
+				game.setCreator(null);
+			} else {
+				game.setOpponent(null);
+			}
+		} else {
+			LOG.error("failed to remove user {} from game: game is not finished, game {}", user, game);
+			throw new ChessException("failed to remove user from game: game is not finished");
+		}
+		if(game.getCreator() == null && game.getOpponent() == null) {
+			remove(game.getId());
+		}
 		return game;
 	}
 	

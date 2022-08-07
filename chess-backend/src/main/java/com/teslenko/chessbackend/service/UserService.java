@@ -12,5 +12,5 @@ public interface UserService {
 	boolean containsUsername(String username);
 	List<User> getAll();
 	void update(User player);
-	void sendRefreshBySocket(User user);
+	User removeGame(String username);
 }

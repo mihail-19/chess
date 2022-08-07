@@ -52,15 +52,6 @@ public class UserActionsGameController {
 		return gameService.getForUser(principal.getName());
 	}
 	
-	@PostMapping("/create")
-	public Game createGame(@RequestParam ColorPolicy colorPolicy, Principal principal) {
-		LOG.info("creating a game by {} with color policy {}", principal.getName(), colorPolicy);
-		String username = principal.getName();
-		Game game = gameService.add(username, colorPolicy);
-		return game;
-	}
-	
-		
 	
 	@GetMapping("/start")
 	public Game start(Principal principal) {

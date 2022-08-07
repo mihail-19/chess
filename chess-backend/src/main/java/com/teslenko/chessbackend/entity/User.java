@@ -3,21 +3,51 @@ package com.teslenko.chessbackend.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.teslenko.chessbackend.Roles;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+@Entity
+@Table(name = "chess_user")
 public class User {
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
+	
+	@Column(unique = true)
 	private String username;
 	@JsonIgnore
 	private String password;
-	private List<Invitation> invitations;
-	private Game game;
+	
+	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "chess_roles", joinColumns = @JoinColumn(name="chess_user_id"))
 	@JsonIgnore
 	private List<String> roles = new ArrayList<>();
-	{
-		roles.add(Roles.ROLE_USER.toString());
-	}
+	
+	
+	@ManyToMany()
+	@JoinTable(name = "user_invitations",
+			joinColumns = @JoinColumn(name="user_id"),
+			inverseJoinColumns = @JoinColumn(name="invitation_id"))
+	private List<Invitation> invitations;
+	@Transient
+	private Game game;
+	
 	
 	public long getId() {
 		return id;

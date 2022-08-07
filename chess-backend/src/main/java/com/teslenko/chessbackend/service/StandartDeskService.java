@@ -5,18 +5,18 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import com.teslenko.chessbackend.entity.Bishop;
 import com.teslenko.chessbackend.entity.Color;
 import com.teslenko.chessbackend.entity.Column;
 import com.teslenko.chessbackend.entity.Desk;
 import com.teslenko.chessbackend.entity.Field;
-import com.teslenko.chessbackend.entity.Figure;
-import com.teslenko.chessbackend.entity.FigureType;
-import com.teslenko.chessbackend.entity.King;
-import com.teslenko.chessbackend.entity.Knight;
-import com.teslenko.chessbackend.entity.PawnFigure;
-import com.teslenko.chessbackend.entity.Queen;
-import com.teslenko.chessbackend.entity.Rook;
+import com.teslenko.chessbackend.entity.figures.Bishop;
+import com.teslenko.chessbackend.entity.figures.Figure;
+import com.teslenko.chessbackend.entity.figures.FigureType;
+import com.teslenko.chessbackend.entity.figures.King;
+import com.teslenko.chessbackend.entity.figures.Knight;
+import com.teslenko.chessbackend.entity.figures.PawnFigure;
+import com.teslenko.chessbackend.entity.figures.Queen;
+import com.teslenko.chessbackend.entity.figures.Rook;
 
 @Service
 public class StandartDeskService implements DeskService{

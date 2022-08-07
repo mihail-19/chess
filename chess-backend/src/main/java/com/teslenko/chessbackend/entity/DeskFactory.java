@@ -3,6 +3,15 @@ package com.teslenko.chessbackend.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.teslenko.chessbackend.entity.figures.Bishop;
+import com.teslenko.chessbackend.entity.figures.Figure;
+import com.teslenko.chessbackend.entity.figures.FigureType;
+import com.teslenko.chessbackend.entity.figures.King;
+import com.teslenko.chessbackend.entity.figures.Knight;
+import com.teslenko.chessbackend.entity.figures.PawnFigure;
+import com.teslenko.chessbackend.entity.figures.Queen;
+import com.teslenko.chessbackend.entity.figures.Rook;
+
 /**
  * Creates desk with set of figures
  * @author Mykhailo Teslenko

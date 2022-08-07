@@ -1,8 +1,12 @@
-package com.teslenko.chessbackend.entity;
+package com.teslenko.chessbackend.entity.figures;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
+import com.teslenko.chessbackend.entity.Color;
+import com.teslenko.chessbackend.entity.Desk;
+import com.teslenko.chessbackend.entity.Field;
 
 
 public class Knight extends Figure implements Cloneable{

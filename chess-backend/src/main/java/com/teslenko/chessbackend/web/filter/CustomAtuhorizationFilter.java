@@ -37,9 +37,10 @@ public class CustomAtuhorizationFilter extends OncePerRequestFilter{
 					String token = authHeader.substring("Bearer ".length());
 					UsernamePasswordAuthenticationToken authToken = jwtManager.authorizeToken(token);
 					SecurityContextHolder.getContext().setAuthentication(authToken);
-					LOG.info("authorization success for {}", authToken.getName());
+					LOG.info("authorization success for {}, roles:", authToken.getName());
 					filterChain.doFilter(request, response);
 				}catch(Exception e) {
+					e.printStackTrace();
 					LOG.error("Error logging in : {} " + e.getMessage());
 					response.setHeader("error", e.getMessage());
 					response.sendError(HttpServletResponse.SC_FORBIDDEN);

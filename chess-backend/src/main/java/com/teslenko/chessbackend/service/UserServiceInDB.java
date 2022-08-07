@@ -16,41 +16,27 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.teslenko.chessbackend.Roles;
+import com.teslenko.chessbackend.db.UserCrudRepository;
 import com.teslenko.chessbackend.entity.Game;
 import com.teslenko.chessbackend.entity.User;
 import com.teslenko.chessbackend.exception.BusyNameException;
 
-//@Service
-public class UserServiceInMemory implements UserDetailsService, UserService {
-	private static final Logger LOG = LoggerFactory.getLogger(UserServiceInMemory.class);
+@Service
+public class UserServiceInDB implements UserDetailsService, UserService {
+	private static final Logger LOG = LoggerFactory.getLogger(UserServiceInDB.class);
 	private PasswordEncoder passwordEncoder;
+	private UserCrudRepository userCrudRepository;
 	private GameService gameService;
-	private List<User> users = new ArrayList<>();
-	private long maxId = 1;
 	@Autowired
-	public UserServiceInMemory(PasswordEncoder passwordEncoder, GameService gameService) {
+	public UserServiceInDB(PasswordEncoder passwordEncoder, UserCrudRepository userCrudRepository, GameService gameService) {
 		this.passwordEncoder = passwordEncoder;
+		this.userCrudRepository = userCrudRepository;
 		this.gameService = gameService;
-		//for testing only
-		User user1 = new User();
-		user1.setUsername("user1");
-		user1.setPassword("1234");
-		add(user1);
-		User user2 = new User();
-		user2.setUsername("u1");
-		user2.setPassword("a");
-		add(user2);
-		User user3 = new User();
-		user3.setUsername("u2");
-		user3.setPassword("b");
-		add(user3);
-		users.forEach(u -> u.getRoles().add(Roles.ROLE_USER.toString()));
 	}
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		User user = users.stream().filter(u -> u.getUsername().equals(username)).findFirst()
-				.orElseThrow(() -> new UsernameNotFoundException("not found user " + username));
+		User user = userCrudRepository.findByUsername(username).orElseThrow();
 		Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
 		user.getRoles().forEach(r -> authorities.add(new SimpleGrantedAuthority(r)));
 		return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
@@ -64,10 +50,11 @@ public class UserServiceInMemory implements UserDetailsService, UserService {
 			LOG.error("error while adding user: username {} already exists ", user.getUsername());
 			throw new BusyNameException("trying to add user with existing username " + user.getUsername());
 		}
-		user.setId(maxId++);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
 		user.setInvitations(new ArrayList<>());
-		users.add(user);
+		user.getRoles().add(Roles.ROLE_USER.toString().toString());
+		user = userCrudRepository.save(user);
+		
 		LOG.info("user added: {}", user);
 		return user;
 	}
@@ -75,32 +62,41 @@ public class UserServiceInMemory implements UserDetailsService, UserService {
 	@Override
 	public User get(long id) {
 		LOG.info("getting user with ID {}", id);
-		return users.stream().filter(p -> p.getId() == id).findFirst().orElseThrow();
+		User user = userCrudRepository.findById(id).orElseThrow();
+		Game game = gameService.getForUser(user.getUsername());
+		user.setGame(game);
+		return user;
 	}
 
 	@Override
-	public void update(User player) {
-		LOG.info("updating user {}", player);
-		users.removeIf(p -> p.getId() == player.getId());
-		users.add(player);
+	public void update(User user) {
+		LOG.info("updating user {}", user);
+		userCrudRepository.save(user);
 	}
 
 	@Override
 	public List<User> getAll() {
 		LOG.info("getting all users");
+		List<User> users = new ArrayList<>();
+		userCrudRepository.findAll().forEach(users::add);
+		users.forEach(u -> u.setGame(gameService.getForUser(u.getUsername())));
 		return users;
 	}
 
 	@Override
 	public User get(String username) {
 		LOG.info("getting ser with username {}", username);
-		return users.stream().filter(u -> u.getUsername().equals(username)).findFirst().orElseThrow();
+		User user = userCrudRepository.findByUsername(username).orElseThrow();
+		LOG.info("found user {}", user);
+		Game game = gameService.getForUser(user.getUsername());
+		user.setGame(game);
+		return user;
 	}
 
 	@Override
 	public boolean containsUsername(String username) {
 		LOG.info("getting if contains username {}", username);
-		return users.stream().filter(u -> u.getUsername().equals(username)).findAny().isPresent();
+		return userCrudRepository.findByUsername(username).isPresent();
 	}
 	
 

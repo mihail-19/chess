@@ -1,5 +1,7 @@
 package com.teslenko.chessbackend.entity;
 
+import com.teslenko.chessbackend.entity.figures.Figure;
+
 public class MoveRecord implements Cloneable {
 	private Move move;
 	private Color color;

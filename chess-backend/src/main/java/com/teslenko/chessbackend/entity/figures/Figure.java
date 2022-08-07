@@ -1,4 +1,4 @@
-package com.teslenko.chessbackend.entity;
+package com.teslenko.chessbackend.entity.figures;
 
 import java.util.Iterator;
 import java.util.List;
@@ -7,6 +7,11 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.teslenko.chessbackend.entity.Color;
+import com.teslenko.chessbackend.entity.Desk;
+import com.teslenko.chessbackend.entity.Field;
+import com.teslenko.chessbackend.entity.Move;
+import com.teslenko.chessbackend.entity.MoveRecord;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 
 /**
