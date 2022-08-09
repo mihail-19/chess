@@ -1,7 +1,12 @@
 package com.teslenko.chessbackend.entity;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class Field implements Cloneable {
+	//@javax.persistence.Column(insertable = false, updatable = false)
 	private int rowId;
+	//@javax.persistence.Column(insertable = false, updatable = false)
 	private Column columnId;
 	
 	public Field(int rowId, Column columnId) {

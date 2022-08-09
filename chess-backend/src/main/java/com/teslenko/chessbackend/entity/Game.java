@@ -1,5 +1,16 @@
 package com.teslenko.chessbackend.entity;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.OneToOne;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,14 +18,26 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 import com.teslenko.chessbackend.exception.UnautorizedPlayerException;
 
+@Entity
 public class Game {
 	private static final Logger LOG = LoggerFactory.getLogger(Game.class);
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
+	@Embedded
 	private Desk desk;
 
 	@JsonIgnoreProperties("game")
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumns(
+			@JoinColumn(name="creator_id", referencedColumnName = "id")
+	)
 	private User creator;
 	@JsonIgnoreProperties("game")
+	@OneToOne(cascade = CascadeType.ALL)
+	@JoinColumns(
+			@JoinColumn(name="opponent_id", referencedColumnName = "id")
+	)
 	private User opponent; 
 	private Color creatorColor;
 	private Color moveColor = Color.white;
@@ -23,10 +46,17 @@ public class Game {
 	private boolean isStarted;
 	private boolean isFinished;
 	private Winner winner;
+	
+	@OneToOne
 	private GameFinishProposition gameFinishProposition;
 	public Game(User creator, ColorPolicy colorPolicy) {
 		this.creator = creator;
 		this.colorPolicy = colorPolicy;
+	}
+	public Game(User creator, ColorPolicy colorPolicy, Desk desk) {
+		this.creator = creator;
+		this.colorPolicy = colorPolicy;
+		this.desk = desk;
 	}
 	public Game() {
 		
@@ -47,6 +77,25 @@ public class Game {
 	
 	public void startGame(Desk desk) {
 		this.desk = desk;
+		if(colorPolicy == ColorPolicy.WHITE_CREATOR) {
+			creatorColor = Color.white;
+			moverUsername = creator.getUsername();
+		} else if (colorPolicy == ColorPolicy.BLACK_CREATOR){
+			creatorColor = Color.black;
+			moverUsername = opponent.getUsername();
+		} else if(colorPolicy == ColorPolicy.RANDOM) {
+			boolean isWhite = Math.random() > 0.5;
+			if(isWhite) {
+				creatorColor = Color.white;
+				moverUsername = creator.getUsername();
+			} else {
+				creatorColor = Color.black;
+				moverUsername = opponent.getUsername();
+			}
+		}
+		isStarted = true;
+	}
+	public void startGame() {
 		if(colorPolicy == ColorPolicy.WHITE_CREATOR) {
 			creatorColor = Color.white;
 			moverUsername = creator.getUsername();

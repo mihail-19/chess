@@ -77,7 +77,8 @@ public class InvitationInDBService implements InvitationService{
 		
 		
 	}
-
+	
+	@Transactional
 	@Override
 	public Game acceptInvitation(String recepientUsername, long id) {
 		LOG.info("accepting invitation ID={} by {}", id, recepientUsername);

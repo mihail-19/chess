@@ -5,18 +5,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.IntConsumer;
 
+import javax.persistence.Entity;
+
 import com.teslenko.chessbackend.entity.Color;
 import com.teslenko.chessbackend.entity.Desk;
 import com.teslenko.chessbackend.entity.Field;
 
-
-public class PawnFigure extends Figure implements Cloneable {
-	public PawnFigure(Field field, Color color, FigureType type) {
+@Entity
+public class Pawn extends Figure implements Cloneable {
+	public Pawn(Field field, Color color, FigureType type) {
 		super(field, color, type);
+	}
+	public Pawn() {
+		// TODO Auto-generated constructor stub
 	}
 	@Override
 	public Object clone() throws CloneNotSupportedException {
-		return new PawnFigure((Field) getField().clone(), getColor(), getType());
+		return new Pawn((Field) getField().clone(), getColor(), getType());
 	}
 	@Override
 	public Figure move(Desk desk, Field field) {

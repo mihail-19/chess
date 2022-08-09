@@ -8,7 +8,7 @@ import com.teslenko.chessbackend.entity.figures.Figure;
 import com.teslenko.chessbackend.entity.figures.FigureType;
 import com.teslenko.chessbackend.entity.figures.King;
 import com.teslenko.chessbackend.entity.figures.Knight;
-import com.teslenko.chessbackend.entity.figures.PawnFigure;
+import com.teslenko.chessbackend.entity.figures.Pawn;
 import com.teslenko.chessbackend.entity.figures.Queen;
 import com.teslenko.chessbackend.entity.figures.Rook;
 
@@ -32,8 +32,8 @@ public class DeskFactory {
 	private List<Figure> getStandartFigures(){
 		List<Figure> figures = new ArrayList<>();
 		for(int i = 0; i<8; i++) {
-			figures.add(new PawnFigure(new Field(2, Column.values()[i]), Color.white, FigureType.pawn));
-			figures.add(new PawnFigure(new Field(7, Column.values()[i]), Color.black, FigureType.pawn));
+			figures.add(new Pawn(new Field(2, Column.values()[i]), Color.white, FigureType.pawn));
+			figures.add(new Pawn(new Field(7, Column.values()[i]), Color.black, FigureType.pawn));
 		}
 		
 		figures.add(new Knight(new Field(1, Column.b), Color.white, FigureType.knight));

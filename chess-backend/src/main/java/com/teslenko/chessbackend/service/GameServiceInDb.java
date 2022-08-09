@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.teslenko.chessbackend.db.GameCrudRepository;
 import com.teslenko.chessbackend.entity.Color;
 import com.teslenko.chessbackend.entity.ColorPolicy;
 import com.teslenko.chessbackend.entity.Desk;
@@ -19,64 +20,64 @@ import com.teslenko.chessbackend.entity.Winner;
 import com.teslenko.chessbackend.exception.ChessException;
 import com.teslenko.chessbackend.exception.UnautorizedPlayerException;
 
-//@Service
-public class GameServiceInMemory implements GameService {
-	private static final Logger LOG = LoggerFactory.getLogger(GameServiceInMemory.class);
+@Service
+public class GameServiceInDb implements GameService {
+	private static final Logger LOG = LoggerFactory.getLogger(GameServiceInDb.class);
 	private DeskService deskService;
 	private MessagingService messagingService;
+	private GameCrudRepository gameCrudRepository;
 	@Autowired
-	public GameServiceInMemory(DeskService deskService,  MessagingService messagingService) {
+	public GameServiceInDb(DeskService deskService,  MessagingService messagingService,  GameCrudRepository gameCrudRepository) {
 		this.deskService = deskService;
 		this.messagingService = messagingService;
+		this.gameCrudRepository = gameCrudRepository;
 	}
 
-	private List<Game> games = new ArrayList<>();
-	private long maxId = 1;
 	@Override
 	public List<Game> getAll() {
 		LOG.info("getting all games");
+		List<Game> games = new ArrayList<>();
+		gameCrudRepository.findAll().forEach(g -> games.add(g));
 		return games;
 	}
 
 	@Override
 	public Game get(long id) {
 		LOG.info("getting game with ID={}", id);
-		return games.stream().filter(g -> g.getId() == id).findFirst().orElseThrow();
+		return gameCrudRepository.findById(id).orElse(null);
 	}
 
 	@Override
 	public Game getForUser(String username) {
 		LOG.info("getting game for user {}", username);
-		return games.stream()
-				.filter(g -> username.equals(g.getCreator().getUsername()) || username.equals(g.getOpponent().getUsername()))
-				.findFirst().orElse(null);
+		return null;
 	}
 
 	@Override
 	public Game getForUser(User user) {
-		return getForUser(user.getUsername());
+		Game game = gameCrudRepository.findByCreator(user).orElseGet(() -> gameCrudRepository.findByOpponent(user).orElse(null));
+		return game;
 	}
 
 	@Override
 	public Game add(Game game) {
 		LOG.info("add game {}", game);
-		game.setId(maxId++);
-		games.add(game);
-		return game;
+		return gameCrudRepository.save(game);
 	}
 
 	@Override
 	public void remove(long id) {
 		LOG.info("remove game with ID={}", id);
-		games.removeIf(g -> g.getId() == id);
+		gameCrudRepository.deleteById(id);
 	}
 
 
 	@Override
 	public Game move(long id, User user, Move move) {
 		LOG.info("game with ID={} move {} by {}", id, user, move);
-		Game game = games.stream().filter(g -> g.getId() == id).findFirst().orElseThrow();
+		Game game = get(id);
 		game.move(user, move);
+		game = gameCrudRepository.save(game);
 		messagingService.sendRefreshBySocket(game.getCreator());
 		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
@@ -88,6 +89,7 @@ public class GameServiceInMemory implements GameService {
 		Game game = get(id);
 		Desk desk = deskService.create();
 		game.startGame(desk);
+		game = gameCrudRepository.save(game);
 		messagingService.sendRefreshBySocket(game.getCreator());
 		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
@@ -97,22 +99,20 @@ public class GameServiceInMemory implements GameService {
 
 	@Override
 	public Game add(User creator, User opponent, ColorPolicy colorPolicy) {
-		//TODO
 		LOG.info("creating a game creator {}, opponent {}, color policy {}", creator.getUsername(), opponent.getUsername(), colorPolicy);
-		Game game = new Game(creator, colorPolicy);
+		Desk desk = deskService.create();
+		Game game = new Game(creator, colorPolicy, desk);
 		game.addPlayer(opponent);
-		game.setId(maxId++);
-		games.add(game);
-		creator.setGame(game);
-		opponent.setGame(game);
-		return game;
+//		creator.setGame(game);
+//		opponent.setGame(game);
+		return gameCrudRepository.save(game);
 	}
 
 
 	@Override
 	public Game startUserGame(User user) {
 		LOG.info("starting game for user {}", user);
-		Game game = user.getGame();
+		Game game = getForUser(user);
 		if(game == null) {
 			LOG.error("Could not start game: user {} has no game to start", user);
 			throw new ChessException("Could not start game: user has no game to start");
@@ -121,8 +121,9 @@ public class GameServiceInMemory implements GameService {
 			LOG.error("Could not start game: User {} is not game creator for game {}", user, game);
 			throw new ChessException("Could not start game: user is not game creator");
 		}
-		Desk desk = deskService.create();
-		game.startGame(desk);
+		
+		game.startGame();
+		game = gameCrudRepository.save(game);
 		messagingService.sendRefreshBySocket(game.getCreator());
 		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
@@ -131,7 +132,7 @@ public class GameServiceInMemory implements GameService {
 	@Override
 	public Game offerStopUserGame(User user, GameFinishProposition finishProposition) {
 		LOG.info("sending offer to stop game from {}, offer: {}", user, finishProposition);
-		Game game = user.getGame();
+		Game game = getForUser(user);
 		Color userColor = game.getUserColor(user);
 		if(!user.getUsername().equals(finishProposition.getSenderUsername())){
 			LOG.error("error while sending stop game invitation: user name {} and porposition name {} are not equal", user, finishProposition.getSenderUsername());
@@ -142,6 +143,7 @@ public class GameServiceInMemory implements GameService {
 			Winner winner = Winner.valueOf(userColor.other().toString());
 			game.finishGame(winner);
 		}
+		game = gameCrudRepository.save(game);
 		messagingService.sendRefreshBySocket(game.getCreator());
 		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
@@ -150,7 +152,7 @@ public class GameServiceInMemory implements GameService {
 	@Override
 	public Game acceptStopUserGame(User user) {
 		LOG.info("accepting stop game by {}", user);
-		Game game = user.getGame();
+		Game game = getForUser(user);
 		GameFinishProposition finishProps = game.getGameFinishProposition();
 		if(finishProps == null) {
 			LOG.error("error accepting stop game: no offer was send in game {}", game);
@@ -177,6 +179,7 @@ public class GameServiceInMemory implements GameService {
 			}
 		} 
 		game.finishGame(winner);
+		game = gameCrudRepository.save(game);
 		messagingService.sendRefreshBySocket(game.getCreator());
 		messagingService.sendRefreshBySocket(game.getOpponent());
 		return game;
@@ -184,7 +187,7 @@ public class GameServiceInMemory implements GameService {
 
 	@Override
 	public Game removeUserFromGame(User user) {
-		Game game = getForUser(user.getUsername());
+		Game game = getForUser(user);
 		if(game != null && game.getIsFinished()) {
 			if(game.getCreator().getUsername().equals(user.getUsername())) {
 				game.setCreator(null);
@@ -198,7 +201,7 @@ public class GameServiceInMemory implements GameService {
 		if(game.getCreator() == null && game.getOpponent() == null) {
 			remove(game.getId());
 		}
-		return game;
+		return gameCrudRepository.save(game);
 	}
 	
 	

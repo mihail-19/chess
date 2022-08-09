@@ -63,8 +63,8 @@ public class UserServiceInDB implements UserDetailsService, UserService {
 	public User get(long id) {
 		LOG.info("getting user with ID {}", id);
 		User user = userCrudRepository.findById(id).orElseThrow();
-		Game game = gameService.getForUser(user.getUsername());
-		user.setGame(game);
+		//Game game = gameService.getForUser(user.getUsername());
+		//user.setGame(game);
 		return user;
 	}
 
@@ -87,9 +87,9 @@ public class UserServiceInDB implements UserDetailsService, UserService {
 	public User get(String username) {
 		LOG.info("getting ser with username {}", username);
 		User user = userCrudRepository.findByUsername(username).orElseThrow();
-		LOG.info("found user {}", user);
-		Game game = gameService.getForUser(user.getUsername());
-		user.setGame(game);
+		//LOG.info("found user {}", user);
+		//Game game = gameService.getForUser(user.getUsername());
+		//user.setGame(game);
 		return user;
 	}
 

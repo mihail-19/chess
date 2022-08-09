@@ -8,6 +8,15 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
+import javax.persistence.Transient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +26,27 @@ import com.teslenko.chessbackend.entity.figures.FigureType;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 import com.teslenko.chessbackend.exception.NoSuchFigureException;
 
+@Embeddable
 public class Desk {
 	private static Logger LOG = LoggerFactory.getLogger(Desk.class);
 	private static final int FIELD_STRING_LENGTH = 14;
 	@JsonIgnore
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinTable(name = "desk_figures",
+			joinColumns = {@JoinColumn(name = "desk_id", referencedColumnName = "id")},
+			inverseJoinColumns = {@JoinColumn(name = "figure_od", referencedColumnName = "id")})
+	@MapKey(name = "field")
 	private Map<Field, Figure> fields;
-	private List<Figure> takenFiguresWhite = new ArrayList<>();
-	private List<Figure> takenFiguresBlack = new ArrayList<>();
+	@OneToMany
+	@JoinTable(name = "desk_taken_figures_white",
+			joinColumns = @JoinColumn(name = "desk_id"),
+			inverseJoinColumns = @JoinColumn(name = "figure_id"))
+	private List<Figure> takenFiguresWhite;
+	@OneToMany
+	@JoinTable(name = "desk_taken_figures_black",
+			joinColumns = @JoinColumn(name = "desk_id"),
+			inverseJoinColumns = @JoinColumn(name = "figure_id"))
+	private List<Figure> takenFiguresBlack;
 	private boolean isCastlingAvailableWhiteLeft = true;
 	private boolean isCastlingAvailableWhiteRight = true;
 	private boolean isCastlingAvailableBlackLeft = true;
@@ -31,7 +54,11 @@ public class Desk {
 	private boolean isUnderCheckWhite;
 	private boolean isUnderCheckBlack;
 	private Checkmate checkmate = Checkmate.NONE;
+	@OneToMany(cascade = CascadeType.ALL)
 	private List<MoveRecord> moveRecords = new ArrayList<>();
+	
+	public Desk() {
+	}
 	/**
 	 * Copy constructor. Returns a deep copy from given {@link Desk}
 	 */
@@ -351,7 +378,16 @@ public class Desk {
 	public void setCheckmate(Checkmate checkmate) {
 		this.checkmate = checkmate;
 	}
+	@Override
+	public String toString() {
+		return "Desk [fields=" + fields + ", takenFiguresWhite=" + takenFiguresWhite + ", takenFiguresBlack="
+				+ takenFiguresBlack + ", isCastlingAvailableWhiteLeft=" + isCastlingAvailableWhiteLeft
+				+ ", isCastlingAvailableWhiteRight=" + isCastlingAvailableWhiteRight + ", isCastlingAvailableBlackLeft="
+				+ isCastlingAvailableBlackLeft + ", isCastlingAvailableBlackRight=" + isCastlingAvailableBlackRight
+				+ ", isUnderCheckWhite=" + isUnderCheckWhite + ", isUnderCheckBlack=" + isUnderCheckBlack
+				+ ", checkmate=" + checkmate + ", moveRecords=" + moveRecords + "]";
+	}
 
-
+	
 	
 }

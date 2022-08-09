@@ -4,15 +4,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Entity;
+
 import com.teslenko.chessbackend.entity.Color;
 import com.teslenko.chessbackend.entity.Column;
 import com.teslenko.chessbackend.entity.Desk;
 import com.teslenko.chessbackend.entity.Field;
 
-
+@Entity
 public class Rook extends Figure implements Cloneable{
 	public Rook(Field field, Color color, FigureType type) {
 		super(field, color, type);
+	}
+	public Rook() {
+		// TODO Auto-generated constructor stub
 	}
 	@Override
 	public Object clone() throws CloneNotSupportedException {

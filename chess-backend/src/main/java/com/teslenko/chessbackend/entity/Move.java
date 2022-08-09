@@ -1,7 +1,24 @@
 package com.teslenko.chessbackend.entity;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
+
+@Embeddable
 public class Move implements Cloneable {
+	@Embedded
+	@AttributeOverrides({
+		@AttributeOverride(name = "rowId", column = @javax.persistence.Column(name = "from_row_id")),
+		@AttributeOverride(name="columnId", column = @javax.persistence.Column(name = "from_column_id"))
+	})
 	private Field from;
+	@Embedded
+	@AttributeOverrides({
+		@AttributeOverride(name = "rowId", column = @javax.persistence.Column(name = "to_row_id")),
+		@AttributeOverride(name="columnId", column = @javax.persistence.Column(name = "to_column_id"))
+	})
 	private Field to;
 	
 	@Override

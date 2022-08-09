@@ -41,6 +41,7 @@ public class UserController {
 		LOG.info("getting current user {}", principal.getName());
 		User user = userService.get(principal.getName());
 		LOG.info("found user {}", user);
+		LOG.info("user game {}", user.getGame());
 		return user;
 	}
 	@GetMapping("/{id}")

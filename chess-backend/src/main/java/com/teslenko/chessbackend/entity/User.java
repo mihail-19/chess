@@ -13,9 +13,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -39,15 +41,14 @@ public class User {
 	@JsonIgnore
 	private List<String> roles = new ArrayList<>();
 	
-	
 	@ManyToMany()
 	@JoinTable(name = "user_invitations",
 			joinColumns = @JoinColumn(name="user_id"),
 			inverseJoinColumns = @JoinColumn(name="invitation_id"))
 	private List<Invitation> invitations;
-	@Transient
+
+	@OneToOne(cascade = CascadeType.ALL)
 	private Game game;
-	
 	
 	public long getId() {
 		return id;
@@ -82,9 +83,6 @@ public class User {
 	public void setInvitations(List<Invitation> invitations) {
 		this.invitations = invitations;
 	}
-	
-	
-	
 	
 	public Game getGame() {
 		return game;

@@ -4,6 +4,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +28,14 @@ import com.teslenko.chessbackend.exception.ImpossibleMoveException;
  * @author Mykhailo Teslenko
  *
  */
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public abstract class Figure implements Cloneable {
 	private static final Logger LOG = LoggerFactory.getLogger(Figure.class);
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private long id;
+	@Embedded
 	private Field field;
 	private Color color;
 	private FigureType type;
@@ -162,6 +176,14 @@ public abstract class Figure implements Cloneable {
 
 	public void setIsAlive(boolean isAlive) {
 		this.isAlive = isAlive;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	@Override
