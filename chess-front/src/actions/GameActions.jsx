@@ -18,9 +18,9 @@ const GameActions = ({user, setUser}) =>{
             } else if(user.game.isStarted && !user.game.isFinished){
 
                 return (
-                    <div>
-                        <button className="actions__button" onClick={() => offerDraw()}>offer draw</button>
-                        <button className="actions__button" onClick={() => giveUp()}>give up</button>
+                    <div className='actions__game-finish'>
+                        <button className="actions__button actions__button_game-finish" onClick={() => offerDraw()}>offer draw</button>
+                        <button className="actions__button actions__button_game-finish" onClick={() => giveUp()}>give up</button>
                         {acceptStopOffer()}
                     </div>
                 )
@@ -31,10 +31,10 @@ const GameActions = ({user, setUser}) =>{
         const finProps = user.game.gameFinishProposition
         if(finProps && finProps.senderUsername !== user.username){
             return (
-                <div>
-                    User {finProps.senderUsername} offers a draw
-                    <button className="actions__button" onClick={() => acceptDraw()}>accept</button>
-                    <button className="actions__button" onClick={() => denyDraw()}>deny</button>
+                <div className='actions__game-finish'>
+                    <div className='actions__game-finish_text'>User {finProps.senderUsername} offers a draw</div>
+                    <button className="actions__button  actions__button_game-finish" onClick={() => acceptDraw()}>accept</button>
+                    <button className="actions__button  actions__button_game-finish" onClick={() => denyDraw()}>deny</button>
                 </div>
             )
         }

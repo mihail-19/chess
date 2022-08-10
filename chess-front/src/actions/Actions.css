@@ -21,6 +21,15 @@
     cursor: pointer;
     font-size: 18px;
 }
+.actions__button_game-finish{
+    margin-right: 10px;
+}
+.actions__game-finish{
+    padding: 5px 0;
+}
+.actions__game-finish_text{
+    padding: 5px 0;
+}
 .invitations__list h3{
     padding: 5px 0;
     margin: 0;

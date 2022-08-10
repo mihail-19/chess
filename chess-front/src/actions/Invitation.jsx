@@ -38,13 +38,13 @@ const Invitation = ({user}) => {
         }
 
         function receivedInitations(){
-            const invsFiltered = invs.filter(i => i.recepient.username === user.username)
+            const invsFiltered = invs.filter(i => i.recepientUsername === user.username)
             if(invsFiltered && invsFiltered.length > 0){
                 return (
                     <div className="invitations__list">
                      <h3>Invitations received</h3>
                         {invsFiltered.map(i =>
-                         <div> {i.sender.username}
+                         <div> {i.senderUsername}
                             <button className="actions__button" onClick={() => denyInvitation(i)}>deny</button>
                             <button className="actions__button" onClick={() => acceptInvitation(i)}>accept</button>
                         </div>)}
@@ -54,13 +54,13 @@ const Invitation = ({user}) => {
         }
 
         function sendedInvitations(){
-            const invsFiltered = invs.filter(i => i.sender.username === user.username)
+            const invsFiltered = invs.filter(i => i.senderUsername === user.username)
             if(invsFiltered && invsFiltered.length > 0){
                 return (
                     <div className="invitations__list">
                         <h3>Invitations sent</h3>
                         {invsFiltered.map(i =>
-                             <div>{i.recepient.username}
+                             <div>{i.recepientUsername}
                             </div>)}
                     </div>
                 )
