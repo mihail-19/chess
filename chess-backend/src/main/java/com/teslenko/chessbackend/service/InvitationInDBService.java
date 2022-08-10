@@ -90,16 +90,18 @@ public class InvitationInDBService implements InvitationService{
 			LOG.error("invitation {} not belongs to user with name={}", inv, recepientUsername);
 			throw new NotUserInvitationException("invitation not belong to user" + recepientUsername);
 		}
-		Game senderGame = gameService.getForUser(sender.getUsername());
+		Game senderGame = sender.getGame();
 		if(senderGame != null) {
 			if(senderGame.getIsFinished()) {
-				gameService.remove(senderGame.getId());
+				gameService.removeUserFromGame(sender);
+				sender.setGame(null);
+				//gameService.remove(senderGame.getId());
 			} else {
 				LOG.error("error accepting invitation ID={}: sender is in other game {}", sender);
 				throw new ChessException("can't create accept invitation - sender is in other game now");
 			}
 		}
-		Game recGame = gameService.getForUser(recepient.getUsername());
+		Game recGame = recepient.getGame();
 		if(recGame != null) {
 			if(!recGame.getIsFinished()) {
 				LOG.error("error accepting invitation ID={}: recepient is in other game {}", recepient);
@@ -107,7 +109,7 @@ public class InvitationInDBService implements InvitationService{
 			} else {
 				gameService.removeUserFromGame(recepient);
 				recepient.setGame(null);
-				gameService.remove(recGame.getId());
+				//gameService.remove(recGame.getId());
 			}
 			
 		}

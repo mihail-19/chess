@@ -47,7 +47,7 @@ public class Game {
 	private boolean isFinished;
 	private Winner winner;
 	
-	@OneToOne
+	@OneToOne(cascade = CascadeType.ALL)
 	private GameFinishProposition gameFinishProposition;
 	public Game(User creator, ColorPolicy colorPolicy) {
 		this.creator = creator;

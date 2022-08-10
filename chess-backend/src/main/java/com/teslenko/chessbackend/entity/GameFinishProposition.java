@@ -8,6 +8,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToOne;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Game finish proposition
  * @author Mykhailo Teslenko
@@ -22,6 +24,7 @@ public class GameFinishProposition {
 	private boolean isDraw;
 	
 	@OneToOne(mappedBy = "gameFinishProposition")
+	@JsonIgnore
 	private Game game;
 	public GameFinishProposition() {
 	}

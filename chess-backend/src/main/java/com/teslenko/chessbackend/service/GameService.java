@@ -21,7 +21,7 @@ public interface GameService {
 	Game startUserGame(User user);
 	Game offerStopUserGame(User user, GameFinishProposition gameFinishCondition);
 	Game acceptStopUserGame(User user);
-	Game removeUserFromGame(User user);
+	void removeUserFromGame(User user);
 	void remove(long id);
 	Game move(long id, User user, Move move);
 }

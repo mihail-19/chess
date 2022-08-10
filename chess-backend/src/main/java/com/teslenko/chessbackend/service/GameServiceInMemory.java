@@ -183,7 +183,7 @@ public class GameServiceInMemory implements GameService {
 	}
 
 	@Override
-	public Game removeUserFromGame(User user) {
+	public void removeUserFromGame(User user) {
 		Game game = getForUser(user.getUsername());
 		if(game != null && game.getIsFinished()) {
 			if(game.getCreator().getUsername().equals(user.getUsername())) {
@@ -198,7 +198,6 @@ public class GameServiceInMemory implements GameService {
 		if(game.getCreator() == null && game.getOpponent() == null) {
 			remove(game.getId());
 		}
-		return game;
 	}
 	
 	

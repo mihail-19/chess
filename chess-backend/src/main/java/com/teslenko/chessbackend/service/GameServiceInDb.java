@@ -55,7 +55,11 @@ public class GameServiceInDb implements GameService {
 
 	@Override
 	public Game getForUser(User user) {
-		Game game = gameCrudRepository.findByCreator(user).orElseGet(() -> gameCrudRepository.findByOpponent(user).orElse(null));
+		LOG.info("getting game for user {}", user);
+		Game game = gameCrudRepository.findByCreator(user).orElseGet(() -> {
+			LOG.info("user is not creator, finding game for opponent");
+			return gameCrudRepository.findByOpponent(user).orElse(null);
+		});
 		return game;
 	}
 
@@ -112,7 +116,7 @@ public class GameServiceInDb implements GameService {
 	@Override
 	public Game startUserGame(User user) {
 		LOG.info("starting game for user {}", user);
-		Game game = getForUser(user);
+		Game game = user.getGame();
 		if(game == null) {
 			LOG.error("Could not start game: user {} has no game to start", user);
 			throw new ChessException("Could not start game: user has no game to start");
@@ -132,7 +136,7 @@ public class GameServiceInDb implements GameService {
 	@Override
 	public Game offerStopUserGame(User user, GameFinishProposition finishProposition) {
 		LOG.info("sending offer to stop game from {}, offer: {}", user, finishProposition);
-		Game game = getForUser(user);
+		Game game = user.getGame();
 		Color userColor = game.getUserColor(user);
 		if(!user.getUsername().equals(finishProposition.getSenderUsername())){
 			LOG.error("error while sending stop game invitation: user name {} and porposition name {} are not equal", user, finishProposition.getSenderUsername());
@@ -152,7 +156,7 @@ public class GameServiceInDb implements GameService {
 	@Override
 	public Game acceptStopUserGame(User user) {
 		LOG.info("accepting stop game by {}", user);
-		Game game = getForUser(user);
+		Game game = user.getGame();
 		GameFinishProposition finishProps = game.getGameFinishProposition();
 		if(finishProps == null) {
 			LOG.error("error accepting stop game: no offer was send in game {}", game);
@@ -186,10 +190,11 @@ public class GameServiceInDb implements GameService {
 	}
 
 	@Override
-	public Game removeUserFromGame(User user) {
-		Game game = getForUser(user);
+	public void removeUserFromGame(User user) {
+		LOG.info("removeing user {} from game");
+		Game game = user.getGame();
 		if(game != null && game.getIsFinished()) {
-			if(game.getCreator().getUsername().equals(user.getUsername())) {
+			if(game.getCreator() != null && game.getCreator().getUsername().equals(user.getUsername())) {
 				game.setCreator(null);
 			} else {
 				game.setOpponent(null);
@@ -200,8 +205,9 @@ public class GameServiceInDb implements GameService {
 		}
 		if(game.getCreator() == null && game.getOpponent() == null) {
 			remove(game.getId());
+		} else {
+			gameCrudRepository.save(game);
 		}
-		return gameCrudRepository.save(game);
 	}
 	
 	
