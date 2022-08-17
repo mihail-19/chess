@@ -24,7 +24,8 @@ public class StandartDeskService implements DeskService{
 	@Override
 	public Desk create() {
 		List<Figure> figures = getStandartFigures();
-		return new Desk(figures);
+		Desk desk = new Desk(figures);
+		return desk;
 	}
 
 	private List<Figure> getStandartFigures(){

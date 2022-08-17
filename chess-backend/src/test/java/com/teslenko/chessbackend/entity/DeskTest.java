@@ -11,9 +11,10 @@ import org.junit.jupiter.api.Test;
 import com.teslenko.chessbackend.entity.figures.FigureType;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 import com.teslenko.chessbackend.exception.NoSuchFigureException;
+import com.teslenko.chessbackend.service.StandartDeskService;
 
 public class DeskTest {
-	Desk desk = new DeskFactory().getDesk();
+	Desk desk = new StandartDeskService().create();
 	
 	@Test
 	public void testMoveUnexistentFigure() {

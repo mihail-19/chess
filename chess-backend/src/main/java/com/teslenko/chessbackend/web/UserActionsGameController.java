@@ -49,7 +49,7 @@ public class UserActionsGameController {
 	@GetMapping("/for-user")
 	public Game getGameForUser(Principal principal) {
 		LOG.info("getting game for user {}", principal.getName());
-		return gameService.getForUser(principal.getName());
+		return gameService.getForUser(userService.get(principal.getName()));
 	}
 	
 	

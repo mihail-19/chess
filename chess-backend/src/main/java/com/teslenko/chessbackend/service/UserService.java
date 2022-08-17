@@ -11,6 +11,8 @@ public interface UserService {
 	User get(String username);
 	boolean containsUsername(String username);
 	List<User> getAll();
+	List<User> searchForUsername(String username);
 	void update(User player);
 	User removeGame(String username);
+	void removeUserByName(String username);
 }

@@ -1,11 +1,14 @@
 package com.teslenko.chessbackend.service;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +27,8 @@ public class InvitationInDBService implements InvitationService{
 	private GameService gameService;
 	private InvitationCrudRepository invitationCrudRepository;
 	private MessagingService messagingService;
-	private static final int MAX_INVITATIONS = 10;
+	@Value(value = "${chess.max.invitations}")
+	private int MAX_INVITATIONS;
 	@Autowired
 	public InvitationInDBService(UserService userService, GameService gameService, InvitationCrudRepository invitationCrudRepository, MessagingService messagingService) {
 		this.userService = userService;
@@ -33,17 +37,54 @@ public class InvitationInDBService implements InvitationService{
 		this.messagingService = messagingService;
 	}
 
+	
+	@Override
+	public List<Invitation> getAll() {
+		List<Invitation> invs = new ArrayList<>();
+		Iterator<Invitation> it = invitationCrudRepository.findAll().iterator();
+		while(it.hasNext()) {
+			invs.add(it.next());
+		}
+		
+		return invs;
+	}
+
+
 	@Override
 	@Transactional
 	public void sendInvitation(String senderName, String recepientName) {
+		LOG.info("max invitations {}", MAX_INVITATIONS);
 		LOG.info("sending invitation from {} to {} game {}", senderName, recepientName);
-		User sender = userService.get(senderName);
-		User recepient = userService.get(recepientName);
-		if(sender.getInvitations().size() > MAX_INVITATIONS) {
+		User sender;
+		try {
+			sender = userService.get(senderName);
+		} catch (NoSuchElementException e) {
+			LOG.error("error sending invitation: sender was not found {}", senderName);
+			throw new ChessException("error sending invitation: sender was not found");
+		}
+		User recepient;
+		try {
+			recepient = userService.get(recepientName);
+		} catch (NoSuchElementException e) {
+			LOG.error("error sending invitation: sender was not found {}", recepientName);
+			throw new ChessException("error sending invitation: sender was not found");
+		}
+		for(Invitation inv : sender.getInvitations()) {
+			if(inv.getSenderUsername().equals(senderName)) {
+				throw new ChessException("error sending invitation: invitation already exists");
+			}
+		}
+		for(Invitation inv : recepient.getInvitations()) {
+			if(inv.getSenderUsername().equals(recepientName)) {
+				throw new ChessException("error sending invitation: invitation already exists");
+			}
+		}
+		LOG.info("sender invitations size {}, recepient invitations size {}" ,sender.getInvitations().size(), recepient.getInvitations().size());
+		if(sender.getInvitations().size() >= MAX_INVITATIONS) {
 			LOG.error("failed to send invitation: sender {} limit exhausted", sender);
 			throw new ChessException("Sender invitation limit exhausted");
 		}
-		if(recepient.getInvitations().size() > MAX_INVITATIONS) {
+		if(recepient.getInvitations().size() >= MAX_INVITATIONS) {
 			LOG.error("failed to send invitation: recepient {} limit exhausted", recepient);
 			throw new ChessException("Recepient invitation limit exhausted");
 		}
@@ -59,12 +100,13 @@ public class InvitationInDBService implements InvitationService{
 	
 	
 	@Override
+	@Transactional
 	public void removeInvitation(String username, long id) {
 		LOG.info("removing invitation by user {} with ID {}", username, id);
-		Invitation inv = invitationCrudRepository.findById(id).orElseThrow();
+		Invitation inv = invitationCrudRepository.findById(id).orElseThrow(() -> new NotUserInvitationException("invitation not exists"));
 		User sender = userService.get(inv.getSenderUsername());
 		User recepient = userService.get(inv.getRecepientUsername());
-		if(!sender.getUsername().equals(username) && recepient.getUsername().equals(username)){
+		if(!sender.getUsername().equals(username) && !recepient.getUsername().equals(username)){
 			LOG.error("invitation with ID={} not belongs to user with name={}", id, username);
 			throw new NotUserInvitationException("invitation not belong to user" + username);
 		}

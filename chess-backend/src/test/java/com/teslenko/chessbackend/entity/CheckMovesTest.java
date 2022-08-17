@@ -7,10 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
+import com.teslenko.chessbackend.service.StandartDeskService;
 
 
 public class CheckMovesTest {
-	Desk desk = new DeskFactory().getDesk();
+	Desk desk = new StandartDeskService().create();
 
 	
 	@Test

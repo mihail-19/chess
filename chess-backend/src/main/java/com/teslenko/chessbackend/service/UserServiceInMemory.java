@@ -111,6 +111,18 @@ public class UserServiceInMemory implements UserDetailsService, UserService {
 		user.setGame(null);
 		return user;
 	}
+
+	@Override
+	public void removeUserByName(String username) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<User> searchForUsername(String username) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 	
 	

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.teslenko.chessbackend.db.GameCrudRepository;
 import com.teslenko.chessbackend.entity.Color;
@@ -47,11 +48,6 @@ public class GameServiceInDb implements GameService {
 		return gameCrudRepository.findById(id).orElse(null);
 	}
 
-	@Override
-	public Game getForUser(String username) {
-		LOG.info("getting game for user {}", username);
-		return null;
-	}
 
 	@Override
 	public Game getForUser(User user) {
@@ -77,6 +73,7 @@ public class GameServiceInDb implements GameService {
 
 
 	@Override
+	@Transactional
 	public Game move(long id, User user, Move move) {
 		LOG.info("game with ID={} move {} by {}", id, user, move);
 		Game game = get(id);
@@ -88,6 +85,7 @@ public class GameServiceInDb implements GameService {
 	}
 
 	@Override
+	@Transactional
 	public Game start(long id) {
 		LOG.info("starting game with ID={}", id);
 		Game game = get(id);
@@ -114,6 +112,7 @@ public class GameServiceInDb implements GameService {
 
 
 	@Override
+	@Transactional
 	public Game startUserGame(User user) {
 		LOG.info("starting game for user {}", user);
 		Game game = user.getGame();
@@ -134,6 +133,7 @@ public class GameServiceInDb implements GameService {
 	}
 
 	@Override
+	@Transactional
 	public Game offerStopUserGame(User user, GameFinishProposition finishProposition) {
 		LOG.info("sending offer to stop game from {}, offer: {}", user, finishProposition);
 		Game game = user.getGame();
@@ -154,6 +154,7 @@ public class GameServiceInDb implements GameService {
 	}
 
 	@Override
+	@Transactional
 	public Game acceptStopUserGame(User user) {
 		LOG.info("accepting stop game by {}", user);
 		Game game = user.getGame();
@@ -190,8 +191,9 @@ public class GameServiceInDb implements GameService {
 	}
 
 	@Override
+	@Transactional
 	public void removeUserFromGame(User user) {
-		LOG.info("removeing user {} from game");
+		LOG.info("removing user {} from game", user);
 		Game game = user.getGame();
 		if(game != null && game.getIsFinished()) {
 			if(game.getCreator() != null && game.getCreator().getUsername().equals(user.getUsername())) {

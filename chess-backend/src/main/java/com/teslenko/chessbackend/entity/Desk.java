@@ -41,12 +41,12 @@ public class Desk {
 	@JoinTable(name = "desk_taken_figures_white",
 			joinColumns = @JoinColumn(name = "desk_id"),
 			inverseJoinColumns = @JoinColumn(name = "figure_id"))
-	private List<Figure> takenFiguresWhite;
+	private List<Figure> takenFiguresWhite = new ArrayList<>();
 	@OneToMany
 	@JoinTable(name = "desk_taken_figures_black",
 			joinColumns = @JoinColumn(name = "desk_id"),
 			inverseJoinColumns = @JoinColumn(name = "figure_id"))
-	private List<Figure> takenFiguresBlack;
+	private List<Figure> takenFiguresBlack = new ArrayList<>();
 	private boolean isCastlingAvailableWhiteLeft = true;
 	private boolean isCastlingAvailableWhiteRight = true;
 	private boolean isCastlingAvailableBlackLeft = true;

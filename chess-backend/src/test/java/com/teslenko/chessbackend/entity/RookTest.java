@@ -5,15 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
 
 import com.teslenko.chessbackend.entity.figures.Figure;
 import com.teslenko.chessbackend.entity.figures.FigureType;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
+import com.teslenko.chessbackend.service.StandartDeskService;
 
 public class RookTest {
-	Desk desk = new DeskFactory().getDesk();
-
+	Desk desk = new StandartDeskService().create();
+	
 	@Test
 	public void testFalseMoveUp() {
 		Field field = new Field(1, Column.a);

@@ -11,9 +11,10 @@ import com.teslenko.chessbackend.entity.figures.Figure;
 import com.teslenko.chessbackend.entity.figures.FigureType;
 import com.teslenko.chessbackend.exception.ImpossibleMoveException;
 import com.teslenko.chessbackend.exception.NoSuchFigureException;
+import com.teslenko.chessbackend.service.StandartDeskService;
 
 public class KnightTest {
-	Desk desk = new DeskFactory().getDesk();
+	Desk desk = new StandartDeskService().create();
 
 	@Test
 	public void testFalseMoveStraight() {

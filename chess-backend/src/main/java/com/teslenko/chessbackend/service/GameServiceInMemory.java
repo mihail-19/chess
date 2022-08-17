@@ -44,8 +44,7 @@ public class GameServiceInMemory implements GameService {
 		return games.stream().filter(g -> g.getId() == id).findFirst().orElseThrow();
 	}
 
-	@Override
-	public Game getForUser(String username) {
+	private Game getForUser(String username) {
 		LOG.info("getting game for user {}", username);
 		return games.stream()
 				.filter(g -> username.equals(g.getCreator().getUsername()) || username.equals(g.getOpponent().getUsername()))

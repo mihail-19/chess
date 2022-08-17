@@ -6,6 +6,7 @@ import com.teslenko.chessbackend.entity.Game;
 import com.teslenko.chessbackend.entity.Invitation;
 
 public interface InvitationService {
+	List<Invitation> getAll();
 	void sendInvitation(String senderName, String recepientName);
 	void removeInvitation(String username, long id);
 	Game acceptInvitation(String recepient, long id);

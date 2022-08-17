@@ -13,7 +13,6 @@ public interface GameService {
 	List<Game> getAll();
 	Game get(long id);
 	
-	Game getForUser(String username);
 	Game getForUser(User user);
 	Game add(Game game);
 	Game add(User creator, User opponent, ColorPolicy colorPolicy);
