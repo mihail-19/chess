@@ -76,5 +76,15 @@ public class UserController {
 		userService.add(user);
 	}
 	
-	
+	/**
+	 * Search for user by name or name part. Returns most actual users list. If no user found, returns empty list.
+	 * @param namePart - username part
+	 * @return
+	 */
+	@PostMapping("/search")
+	public List<User> searchUser(@RequestParam String namePart) {
+		LOG.info("searching for user by name {}", namePart);
+		List<User> users = userService.searchForUsername(namePart);
+		return users;
+	}
 }
