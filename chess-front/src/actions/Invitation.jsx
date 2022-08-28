@@ -3,6 +3,7 @@ import { useEffect } from "react"
 import { useState, useContext } from "react"
 import './Actions.css'
 import { AuthContext } from "../context/authContext"
+import {searchUser} from '../service/UserService'
 
 const Invitation = ({user}) => {
     const {isAuth, setIsAuth, 
@@ -11,6 +12,7 @@ const Invitation = ({user}) => {
         username, setUsername} = useContext(AuthContext)
         const [name, setName] = useState('')
         const [invs, setInvs] = useState([])
+        const [foundUsers, setFoundUsers] = useState([])
         useEffect(() => {
             console.log(user)
             if(isAuth && user && user.invitations)
@@ -25,16 +27,39 @@ const Invitation = ({user}) => {
                     <div className="actions__form">
                         <div className="actions__form-line">
                             <label>Invitation:</label> 
-                            <input type="text" value={name} onChange={e => setName(e.target.value)}></input>
-                        </div>
-                        <div className="actions__form-line">
-                            <button className="actions__button" onClick={() => sendInvitation(name)}>Send</button>
+                            <input type="text" value={name} onChange={e => searchUserThenShow(e.target.value)}></input>
+                            {showFoundUsers()}
                         </div>
                     </div>
                     {receivedInitations()}
                     {sendedInvitations()}
                 </div>
             )
+        }
+        function searchUserThenShow(namePart){
+            console.log('search user' + namePart)
+            setName(namePart)
+            if(!namePart || namePart.length < 1){
+                setFoundUsers([])
+            } else {
+                searchUser(namePart).then(res => {
+                    setFoundUsers(res.data)
+                })
+            }
+        }
+        function showFoundUsers(){
+            if(foundUsers.length > 0){
+            return (
+                <div className='actions__users-list'>
+                    {foundUsers.filter(uu => uu.username !== user.username).map(u => 
+                        <div className='actions__found-user'>
+                            <div className='actions__found-user-name'>{u.username}</div>
+                            <button className="actions__button" onClick={() => sendInvitation(u.username)}>Send</button>
+                        </div>
+                    )}
+                </div>
+            )
+                    }
         }
 
         function receivedInitations(){
@@ -72,8 +97,10 @@ const Invitation = ({user}) => {
                 "Authorization": accessHeader
             }
             let data = new FormData()
-            data.append("recepient", name)
+            data.append("recepient", username)
+
             const res = await axios.post(localStorage.getItem("server-url") + "/actions/invitation/send", data, {headers: headers})
+            setName('')
         }
         async function getInvitations(){
             const headers = {

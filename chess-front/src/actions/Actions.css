@@ -53,3 +53,15 @@
     margin: 0;
     padding: 10px 0;
 }
+
+.actions__users-list{
+    border: 1px solid gray;
+    margin-top: 10px;
+}
+.actions__found-user{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid gray;
+    padding: 5px 2px;
+}

@@ -19,4 +19,14 @@ function registerUser(name, password){
     let res = axios.post(url, data)
     return res
 }
-export {getUser, registerUser}
+function searchUser(namePart){
+    const url  = localStorage.getItem("server-url") + "/users/search"
+    const headers = {
+        "Authorization": localStorage.getItem("access_header")
+    }
+    const formData = new FormData()
+    formData.append('namePart', namePart)
+    let res = axios.post(url, formData, {headers: headers})
+    return res
+}
+export {getUser, registerUser, searchUser}

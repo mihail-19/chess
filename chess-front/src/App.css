@@ -1,8 +1,13 @@
 .container{
   background-color: #3c4235;
   display: flex;
-  padding: 5px 10px 10px 35px;
+  padding: 5px 10px 10px 15px;
   height: 100%;
+}
+@media(max-width: 700px){
+  .container{
+   flex-direction: column; 
+  }
 }
 .header{
   display: flex;
